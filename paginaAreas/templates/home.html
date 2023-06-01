@@ -1,0 +1,9 @@
+<h1>Homepage</h1>
+
+
+{% for item in todo %}
+    <button href="paginaAreas/{{item.nombre_area}}">
+        {{ item.nombre_area }}
+    </button>
+
+{% endfor %}
