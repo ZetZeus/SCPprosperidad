@@ -1,0 +1,60 @@
+<h1>Cepillado</h1>
+
+<form action="" method="post">
+    {% csrf_token %}
+    <label for="calendarFecha">Fecha</label>
+    <input type="date">
+    <br><br>
+    <label for="dropdownMaquina">Elegir Maquina</label>
+    <select id="dropdownMaquina">
+        {% for item in inf_maquinas %}
+            {% if item.id_centrotrabajo == 4 %}
+                <option value={{item.nombremaquina}}> {{item.nombremaquina}} </option>
+            {% endif %}
+        {% endfor %}
+    </select>
+    <br><br>
+    <label for="dropdownCodMadAnt">Codigo Madera Anterior</label>
+    <select id="dropdownCodMadAnt">
+        {% for item in inf_maderas %}
+            {% if item.id_centrotrabajo == 3 %}
+                <option value={{item.codigo_madera}}> {{item.codigo_madera}} </option>
+            {% endif %}
+        {% endfor %}
+    </select>
+    <br><br>
+    <label for="dropdownCodMad">Codigo Madera</label>
+    <select id="dropdownCodMad">
+        {% for item in inf_maderas %}
+            {% if item.id_centrotrabajo == 4 %}
+                <option value={{item.codigo_madera}}> {{item.codigo_madera}} </option>
+            {% endif %}
+        {% endfor %}
+    </select>
+    <br><br>
+    <label for = "inputPiezasEntradaCEP">Piezas Entrada </label>
+    <input id ="inputPiezasEntradaCEP" type='number'></input>
+    <br></br>
+
+    <label for = "inputPiezasSalidaCEP">Piezas Salida </label>
+    <input id ="inputPiezasSalidaCEP" type='number'></input> 
+    <br></br>
+
+    <label for = "inputRechazoHum">Rechazo Humedad </label>
+    <input id ="inputRechazoHum" type='number'></input>
+    <br></br>
+
+    <label for = "inputRechazoDef">Rechazo Defecto </label>
+    <input id ="inputRechazoDef" type='number'></input>
+    <br></br>
+
+    <label for = "inputRechazoCep">Rechazo Cepillado </label>
+    <input id ="inputRechazoCep" type='number'></input>
+    <br></br>
+
+    <button type = "submit" > Ingresar</button>
+    <button type="submit">Prev</button>
+
+ 
+
+</form>

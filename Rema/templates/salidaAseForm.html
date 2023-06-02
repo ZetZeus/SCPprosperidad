@@ -1,0 +1,45 @@
+<h1>Aserradero</h1>
+
+<form>
+    {% csrf_token %}
+    <label for="calendarFecha">Fecha</label>
+    <input type="date">
+    <br><br>
+    <label for="dropdownMaquina">Elegir Maquina</label>
+    <select id="dropdownMaquina">
+        {% for item in maquinas %}
+            {% if item.id_centrotrabajo == 2 %}
+                <option value={{item.nombremaquina}}> {{item.nombremaquina}} </option>
+            {% endif %}
+        {% endfor %}
+    </select>
+    <br><br>
+    <label for="dropdownCodMadAnt">Codigo Madera Anterior</label>
+    <select id="dropdownCodMadAnt">
+        {% for item in maderas %}
+            {% if item.id_centrotrabajo == 1 %}
+                <option value={{item.codigo_madera}}> {{item.codigo_madera}} </option>
+            {% endif %}
+        {% endfor %}
+    </select>
+    <br><br>
+    
+    <label for="dropdownCodMad">Codigo Madera</label>
+    <select id="dropdownCodMad">
+        {% for item in maderas %}
+            {% if item.id_centrotrabajo == 2 %}
+                <option value={{item.codigo_madera}}> {{item.codigo_madera}} </option>
+            {% endif %}
+        {% endfor %}
+    </select>
+    <br><br>
+
+    <label htmlFor = "inputPiezasSalidaASE">Piezas </label>
+    <input id ="inputPiezasSalidaASE" type='number'></input>
+    <br></br>
+   
+    <button type = "submit"> Ingresar</button>
+    <button onclick="location.href= '/Rema' " type="submit">Volver a Rema</button>
+
+
+</form>
