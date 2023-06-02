@@ -5,8 +5,8 @@
     <label for="fecha">Fecha</label>
     <input type="date" name="fecha">
     <br><br>
-    <label for="elegirMaquina">Elegir Maquina</label>
-    <select id="elegirMaquina" name="elegirMaquina">
+    <label for="nombre_maquina">Elegir Maquina</label>
+    <select id="nombre_maquina" name="nombre_maquina">
         {% for item in inf_maquinas %}
             {% if item.id_centrotrabajo == 4 %}
                 <option value={{item.nombremaquina}}> {{item.nombremaquina}} </option>
@@ -23,8 +23,8 @@
         {% endfor %}
     </select>
     <br><br>
-    <label for="codigoMadera">Codigo Madera</label>
-    <select id="codigoMadera">
+    <label for="codigo_madera">Codigo Madera</label>
+    <select id="codigo_madera" name="codigo_madera">
         {% for item in inf_maderas %}
             {% if item.id_centrotrabajo == 4 %}
                 <option value={{item.codigo_madera}}> {{item.codigo_madera}} </option>
@@ -32,24 +32,24 @@
         {% endfor %}
     </select>
     <br><br>
-    <label for = "piezasEntrada">Piezas Entrada </label>
-    <input id ="piezasEntrada" type='number' name="piezasEntrada"></input>
+    <label for = "piezasentrada">Piezas Entrada </label>
+    <input id ="piezasentrada" type='number' name="piezasentrada"></input>
     <br></br>
 
-    <label for = "piezasSalida">Piezas Salida </label>
-    <input id ="piezasSalida" type='number' name="piezasSalida"></input> 
+    <label for = "piezassalida">Piezas Salida </label>
+    <input id ="piezassalida" type='number' name="piezassalida"></input> 
     <br></br>
 
-    <label for = "rechazoHum">Rechazo Humedad </label>
-    <input id ="rechazoHum" type='number' name="rechazoHum"></input>
+    <label for = "piezasrechazohum">Rechazo Humedad </label>
+    <input id ="piezasrechazohum" type='number' name="piezasrechazohum"></input>
     <br></br>
 
-    <label for = "rechazoDef">Rechazo Defecto </label>
-    <input id ="rechazoDef" type='number' name="rechazoDef"></input>
+    <label for = "piezasrechazodef">Rechazo Defecto </label>
+    <input id ="piezasrechazodef" type='number' name="piezasrechazodef"></input>
     <br></br>
 
-    <label for = "rechazoProc">Rechazo Cepillado </label>
-    <input id ="rechazoProc" type='number' name="rechazoProc"></input>
+    <label for = "piezasrechazoproc">Rechazo Cepillado </label>
+    <input id ="piezasrechazoproc" type='number' name="piezasrechazoproc"></input>
     <br></br>
     
 
