@@ -5,8 +5,8 @@
 
 
 {% for item in todo %}
-    <button href="/{{item.nombre_area}}">
-        {{ item.nombre_area }}
+    <button onclick="location.href = '/{{item.nombre_area}}/' ">
+        {{item.nombre_area}}
     </button>
 
 {% endfor %}

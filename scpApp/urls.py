@@ -22,7 +22,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path("Rema/", include("Rema.urls")),
     path('',views.home,name='home'),
-    path("<str:nombre_area>/",views.join_area, name='Area')
+    path("<int:id>/",views.join_area, name='Area')
 
 
 ]
