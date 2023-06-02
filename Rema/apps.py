@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class PaginaareasConfig(AppConfig):
+class RemaConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'paginaAreas'
+    name = 'Rema'

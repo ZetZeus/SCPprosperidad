@@ -6,7 +6,7 @@ from .models import Centrotrabajo,Area
 
 
 def index(request):
-    return HttpResponse("Hello, world. You're at the paginaAreas index.")
+    return HttpResponse("Hello, world. You're at the Rema index.")
 
 def home(request):
     info_area = Centrotrabajo.objects.all
