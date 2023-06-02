@@ -55,7 +55,7 @@ class Maquina(models.Model):
 
 
 class Proceso(models.Model):
-    id_proceso = models.IntegerField(primary_key=True)
+    id_proceso = models.AutoField(primary_key=True)
     id_madera = models.IntegerField(blank=True, null=True)
     id_area = models.IntegerField(blank=True, null=True)
     id_centrotrabajo = models.IntegerField(db_column='id_centroTrabajo', blank=True, null=True)  # Field name made lowercase.

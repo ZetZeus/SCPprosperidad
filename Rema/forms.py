@@ -1,7 +1,17 @@
-from django.forms import ModelForm
-from .models import Area,Centrotrabajo,Maquina,Maderas,Proceso 
+from django import forms
+from .models import Area, Centrotrabajo,Maquina,Maderas,Proceso
 
-class cepilladoForm(ModelForm):
+class cepillado(forms.ModelForm):
+
     class Meta:
         model = Proceso
-        field = ()
+        fields = ['id_proceso',
+                  'fecha',
+                  'nombre_maquina',
+                  'codigo_madera',
+                  'piezasentrada',
+                  'piezassalida',
+                  'piezasrechazohum',
+                  'piezasrechazodef',
+                  'piezasrechazoproc']
+    

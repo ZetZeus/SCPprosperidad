@@ -1,0 +1,49 @@
+<h1>Entrada Aserradero</h1>
+
+<form action="" method="post">
+    {% csrf_token %}
+    <label for="calendarFecha">Fecha</label>
+    <input type="date">
+    <br><br>
+    <label for="dropdownMaquina">Elegir Maquina</label>
+    <select id="dropdownMaquina">
+        {% for item in inf_maquinas %}
+            {% if item.id_centrotrabajo == 1 %}
+                <option value={{item.nombremaquina}}> {{item.nombremaquina}} </option>
+            {% endif %}
+        {% endfor %}
+    </select>
+    <br><br>
+
+    <label for="dropdownCodMad">Codigo Madera</label>
+    <select id="dropdownCodMad">
+        {% for item in inf_maderas %}
+            {% if item.id_centrotrabajo == 1 %}
+                <option value={{item.codigo_madera}}> {{item.codigo_madera}} </option>
+            {% endif %}
+        {% endfor %}
+    </select>
+    <br><br>
+
+    <label for = "diametro">Diametro </label>
+    <input id ="diametro" type='number'></input> 
+    <br></br>
+    
+
+    <label for = "Largo">Largo </label>
+    <input id ="Largo" type='number'></input> 
+    <br></br>
+
+    <label for = "inputPiezasEntradaASE">Piezas</label>
+    <input id ="inputPiezasEntradaASE" type='number'></input>
+    <br></br>
+
+
+    
+
+    <button type = "submit" > Ingresar</button>
+    <button type="submit">Prev</button>
+
+ 
+
+</form>

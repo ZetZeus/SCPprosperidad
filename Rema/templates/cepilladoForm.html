@@ -1,12 +1,12 @@
 <h1>Cepillado</h1>
 
-<form action="" method="post">
+<form  method="post" action="/Rema/Cepillado">
     {% csrf_token %}
-    <label for="calendarFecha">Fecha</label>
-    <input type="date">
+    <label for="fecha">Fecha</label>
+    <input type="date" name="fecha">
     <br><br>
-    <label for="dropdownMaquina">Elegir Maquina</label>
-    <select id="dropdownMaquina">
+    <label for="elegirMaquina">Elegir Maquina</label>
+    <select id="elegirMaquina" name="elegirMaquina">
         {% for item in inf_maquinas %}
             {% if item.id_centrotrabajo == 4 %}
                 <option value={{item.nombremaquina}}> {{item.nombremaquina}} </option>
@@ -14,8 +14,8 @@
         {% endfor %}
     </select>
     <br><br>
-    <label for="dropdownCodMadAnt">Codigo Madera Anterior</label>
-    <select id="dropdownCodMadAnt">
+    <label for="codigoMaderaAnt">Codigo Madera Anterior</label>
+    <select id="codigoMaderaAnt">
         {% for item in inf_maderas %}
             {% if item.id_centrotrabajo == 3 %}
                 <option value={{item.codigo_madera}}> {{item.codigo_madera}} </option>
@@ -23,8 +23,8 @@
         {% endfor %}
     </select>
     <br><br>
-    <label for="dropdownCodMad">Codigo Madera</label>
-    <select id="dropdownCodMad">
+    <label for="codigoMadera">Codigo Madera</label>
+    <select id="codigoMadera">
         {% for item in inf_maderas %}
             {% if item.id_centrotrabajo == 4 %}
                 <option value={{item.codigo_madera}}> {{item.codigo_madera}} </option>
@@ -32,28 +32,30 @@
         {% endfor %}
     </select>
     <br><br>
-    <label for = "inputPiezasEntradaCEP">Piezas Entrada </label>
-    <input id ="inputPiezasEntradaCEP" type='number'></input>
+    <label for = "piezasEntrada">Piezas Entrada </label>
+    <input id ="piezasEntrada" type='number' name="piezasEntrada"></input>
     <br></br>
 
-    <label for = "inputPiezasSalidaCEP">Piezas Salida </label>
-    <input id ="inputPiezasSalidaCEP" type='number'></input> 
+    <label for = "piezasSalida">Piezas Salida </label>
+    <input id ="piezasSalida" type='number' name="piezasSalida"></input> 
     <br></br>
 
-    <label for = "inputRechazoHum">Rechazo Humedad </label>
-    <input id ="inputRechazoHum" type='number'></input>
+    <label for = "rechazoHum">Rechazo Humedad </label>
+    <input id ="rechazoHum" type='number' name="rechazoHum"></input>
     <br></br>
 
-    <label for = "inputRechazoDef">Rechazo Defecto </label>
-    <input id ="inputRechazoDef" type='number'></input>
+    <label for = "rechazoDef">Rechazo Defecto </label>
+    <input id ="rechazoDef" type='number' name="rechazoDef"></input>
     <br></br>
 
-    <label for = "inputRechazoCep">Rechazo Cepillado </label>
-    <input id ="inputRechazoCep" type='number'></input>
+    <label for = "rechazoProc">Rechazo Cepillado </label>
+    <input id ="rechazoProc" type='number' name="rechazoProc"></input>
     <br></br>
+    
 
     <button type = "submit" > Ingresar</button>
     <button type="submit">Prev</button>
+
 
  
 
