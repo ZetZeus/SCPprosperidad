@@ -1,31 +1,31 @@
 <h1>Moldurera</h1>
 
-<form>
+<form method="post" action="/Rema/Moldurera">
     {% csrf_token %}
-    <label for="calendarFecha">Fecha</label>
-    <input type="date">
+    <label for="fecha">Fecha</label>
+    <input type="date" name="fecha">
     <br><br>
-    <label for="dropdownMaquina">Elegir Maquina</label>
-    <select id="dropdownMaquina">
-        {% for item in maquinas %}
+    <label for="nombre_maquina">Elegir Maquina</label>
+    <select id="nombre_maquina" name="nombre_maquina">
+        {% for item in inf_maquinas %}
             {% if item.id_centrotrabajo == 7 %}
                 <option value={{item.nombremaquina}}> {{item.nombremaquina}} </option>
             {% endif %}
         {% endfor %}
     </select>
     <br><br>
-    <label for="dropdownCodMadAnt">Codigo Madera Anterior</label>
-    <select id="dropdownCodMadAnt">
-        {% for item in maderas %}
+    <label for="codigoMaderaAnt">Codigo Madera Anterior</label>
+    <select id="codigoMaderaAnt" name="codigoMaderaAnt">
+        {% for item in inf_maderas %}
             {% if item.id_centrotrabajo == 6 %}
                 <option value={{item.codigo_madera}}> {{item.codigo_madera}} </option>
             {% endif %}
         {% endfor %}
     </select>
     <br><br>
-    <label for="dropdownCodMad">Codigo Madera</label>
-    <select id="dropdownCodMad">
-        {% for item in maderas %}
+    <label for="codigo_madera">Codigo Madera</label>
+    <select id="codigo_madera" name="codigo_madera">
+        {% for item in inf_maderas %}
             {% if item.id_centrotrabajo == 7 %}
                 <option value={{item.codigo_madera}}> {{item.codigo_madera}} </option>
             {% endif %}
@@ -33,16 +33,16 @@
     </select>
     <br><br>
 
-    <label for = "inputPiezasEntradaMLD">Piezas Entrada </label>
-    <input id ="inputPiezasEntradaMLD" type='number'></input>
+    <label for = "piezasentrada">Piezas Entrada </label>
+    <input id ="piezasentrada" type='number' name="piezasentrada"></input>
     <br></br>
 
-    <label for = "inputPiezasCalidadMLD">Piezas Calidad </label>
-    <input id ="inputPiezasCalidadMLD" type='number'></input>
+    <label for = "piezascalidad">Piezas Calidad </label>
+    <input id ="piezascalidad" type='number' name="piezascalidad"></input>
     <br></br>
 
-    <label for = "inputRechazoMLD">Rechazo </label>
-    <input id ="inputRechazoMLD" type='number'></input>
+    <label for = "piezasrechazoproc">Rechazo </label>
+    <input id ="piezasrechazoproc" type='number' name="piezasrechazoproc"></input>
     <br></br>
    
     <button type = "submit"> Ingresar</button>

@@ -76,6 +76,7 @@ class Proceso(models.Model):
     volumenrechazoproc = models.FloatField(db_column='volumenRechazoProc', blank=True, null=True)  # Field name made lowercase.
     piezasreproceso = models.IntegerField(db_column='piezasReproceso', blank=True, null=True)  # Field name made lowercase.
     volumenreproceso = models.FloatField(db_column='volumenReproceso', blank=True, null=True)  # Field name made lowercase.
+    piezascalidad = models.IntegerField(db_column='piezasCalidad', blank=True, null=True)  # Field name made lowercase.
     volumencalidad = models.FloatField(db_column='volumenCalidad', blank=True, null=True)  # Field name made lowercase.
     volumentotal = models.FloatField(db_column='volumenTotal', blank=True, null=True)  # Field name made lowercase.
 
