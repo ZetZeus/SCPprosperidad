@@ -41,6 +41,24 @@ class trozado(forms.ModelForm):
                   'volumenentrada',
                   'volumensalida',
                   'volumentotal']
+class finger(forms.ModelForm):
+    class Meta:
+        model = Proceso
+        fields = ['id_proceso',
+                  'id_madera',
+                  'id_area',
+                  'id_centrotrabajo',
+                  'id_maquina',
+                  'fecha',
+                  'nombre_maquina',
+                  'codigo_madera',
+                  'piezasentrada',
+                  'piezascalidad',
+                  'volumenentrada',
+                  'volumencalidad',
+                  'piezasreproceso',
+                  'volumenreproceso',
+                  'volumentotal']
 
 class nuevaMadera(forms.ModelForm):
     class Meta:
