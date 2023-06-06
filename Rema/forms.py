@@ -25,6 +25,23 @@ class cepillado(forms.ModelForm):
                   'volumenrechazoproc',
                   'volumentotal']
         
+class trozado(forms.ModelForm):
+    class Meta:
+        model = Proceso
+        fields = ['id_proceso',
+                  'id_madera',
+                  'id_area',
+                  'id_centrotrabajo',
+                  'id_maquina',
+                  'fecha',
+                  'nombre_maquina',
+                  'codigo_madera',
+                  'piezasentrada',
+                  'piezassalida',
+                  'volumenentrada',
+                  'volumensalida',
+                  'volumentotal']
+
 class nuevaMadera(forms.ModelForm):
     class Meta:
         model = Maderas

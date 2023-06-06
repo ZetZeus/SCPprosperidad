@@ -5,7 +5,7 @@ from django.contrib import messages
 # Create your views here.
 from django.http import HttpResponse
 from .models import Centrotrabajo,Area, Maquina, Maderas, Proceso
-from .forms import cepillado, nuevaMadera
+from .forms import cepillado,trozado, nuevaMadera
 
 
 
@@ -87,10 +87,7 @@ def cepilladoInfo(request):
             print('entrando a validar')
             instance = nuevo_form.save(commit=False)
             instance.id_proceso = p+1
-            """instance.piezasreproceso = 0
-            instance.volumenreproceso = 0
-            instance.volumencalidad = 0
-            instance.piezascalidad = 0"""
+           
 
 
             for i in Maderas.objects.raw(
@@ -151,9 +148,21 @@ def trozadoInfo(request):
     info_maderas = Maderas.objects.all
     p = Proceso.objects.aggregate(Max('id_proceso')).get('id_proceso__max')
     if request.method == "POST":
-        form = cepillado(request.POST or None)
-        if form.is_valid():
-            instance = form.save(commit=False)
+        form = trozado(request.POST or None)
+        update_data = request.POST.copy()
+        idProceso = p+1
+        update_data.update({'id_proceso': idProceso,
+                            'id_madera':'0',
+                            'id_centrotrabajo':'0',
+                            'id_area':'0',
+                            'id_maquina': '0',
+                            'volumenentrada': '0',
+                            'volumensalida': '0',
+                            'volumentotal':0,})
+        nuevo_form = trozado(update_data)
+
+        if nuevo_form.is_valid():
+            instance = nuevo_form.save(commit=False)
             instance.id_proceso = p+1
             for i in Maderas.objects.raw(
                 """
@@ -163,9 +172,13 @@ def trozadoInfo(request):
             ):
                 if (i.codigo_madera == instance.codigo_madera):
                     instance.id_madera = i.id_madera
+
+                if(instance.piezasentrada != None):    
                     instance.volumenentrada = ((i.espesor * i.ancho * i.largo) * instance.piezasentrada) / 1000000
+                if(instance.piezassalida != None):
                     instance.volumensalida = ((i.espesor * i.ancho * i.largo) * instance.piezassalida) / 1000000
 
+                instance.volumentotal = instance.volumensalida
                 
 
             instance.id_area = 1
@@ -181,9 +194,13 @@ def trozadoInfo(request):
                     instance.id_maquina = i.id_maquina
             
 
-            instance.volumentotal = instance.volumensalida
                 
-            instance.save()    
+            instance.save()  
+        else:
+            print('el formulario no es valido')
+            messages.success(request, ('Error al ingresar'))
+            return render(request,'trozadoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+
         return render(request,'trozadoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
 
     else:

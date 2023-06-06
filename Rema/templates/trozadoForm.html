@@ -1,49 +1,65 @@
-<h1>Trozado</h1>
+<body>
+    
 
-<form  method="post" action="/Rema/Trozado">
-    {% csrf_token %}
-    <label for="fecha">Fecha</label>
-    <input type="date" name="fecha">
-    <br><br>
-    <label for="nombre_maquina">Elegir Maquina</label>
-    <select id="nombre_maquina" name="nombre_maquina">
-        {% for item in inf_maquinas %}
-            {% if item.id_centrotrabajo == 5 %}
-                <option value={{item.nombremaquina}}> {{item.nombremaquina}} </option>
-            {% endif %}
-        {% endfor %}
-    </select>
-    <br><br>
-    <label for="codigoMaderaAnt">Codigo Madera Anterior</label>
-    <select id="codigoMaderaAnt" >
-        {% for item in inf_maderas %}
-            {% if item.id_centrotrabajo == 4 %}
-                <option value={{item.codigo_madera}}> {{item.codigo_madera}} </option>
-            {% endif %}
-        {% endfor %}
-    </select>
-    <br><br>
-    <label for="codigo_madera">Codigo Madera</label>
-    <select id="codigo_madera" name="codigo_madera">
-        {% for item in inf_maderas %}
-            {% if item.id_centrotrabajo == 5 %}
-                <option value={{item.codigo_madera}}> {{item.codigo_madera}} </option>
-            {% endif %}
-        {% endfor %}
-    </select>
-    <br><br>
+<div class="container">
+    {% if messages %}
+        {% for mensaje in messages %}
+            {{ mensaje }}
+        {%  endfor %}
+    
+    {% endif %}
+    <form  method="post" action="/Rema/Trozado">
+        {% csrf_token %}
+        <h1>Trozado</h1>
 
-    <label for = "piezasentrada">Piezas Entrada </label>
-    <input id ="piezasentrada" type='number' name="piezasentrada"></input>
-    <br></br>
+        <label for="fecha">Fecha</label>
+        <input type="date" name="fecha">
+        <br><br>
+        <label for="nombre_maquina">Elegir Maquina</label>
+        <select id="nombre_maquina" name="nombre_maquina">
+            {% for item in inf_maquinas %}
+                {% if item.id_centrotrabajo == 5 %}
+                    <option value={{item.nombremaquina}}> {{item.nombremaquina}} </option>
+                {% endif %}
+            {% endfor %}
+        </select>
+        <br><br>
+        <label for="codigoMaderaAnt">Codigo Madera Anterior</label>
+        <select id="codigoMaderaAnt" >
+            {% for item in inf_maderas %}
+                {% if item.id_centrotrabajo == 4 %}
+                    <option value={{item.codigo_madera}}> {{item.codigo_madera}} </option>
+                {% endif %}
+            {% endfor %}
+        </select>
+        <br><br>
+        <label for="codigo_madera">Codigo Madera</label>
+        <select id="codigo_madera" name="codigo_madera">
+            {% for item in inf_maderas %}
+                {% if item.id_centrotrabajo == 5 %}
+                    <option value={{item.codigo_madera}}> {{item.codigo_madera}} </option>
+                {% endif %}
+            {% endfor %}
+        </select>
+        <br><br>
 
-    <label for = "piezassalida">Piezas Salida </label>
-    <input id ="piezassalida" type='number' name="piezassalida"></input>
-    <br></br>
-   
-    <button type = "submit"> Ingresar</button>
-    <button type="submit">Volver a Rema</button>
+        <label for = "piezasentrada">Piezas Entrada </label>
+        <input id ="piezasentrada" type='number' name="piezasentrada"></input>
+        <br></br>
+
+        <label for = "piezassalida">Piezas Salida </label>
+        <input id ="piezassalida" type='number' name="piezassalida"></input>
+        <br></br>
+    
+        <button type = "submit" class="btn"> Ingresar</button>
+        <a href="/Rema/">
+            <button class="btn" >Volver a Rema</button>
+        </a>
 
 
-
-</form>
+    </form>
+    <a href="/Rema/nuevocodigo">
+        <button class="btn" >Ingresar nuevo codigo</button>
+    </a>
+</div>
+</body>
