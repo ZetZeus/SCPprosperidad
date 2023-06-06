@@ -23,9 +23,23 @@ class cepillado(forms.ModelForm):
                   'volumenrechazohum',
                   'volumenrechazodef',
                   'volumenrechazoproc',
-                  'piezasreproceso',
-                  'volumenreproceso',
-                  'piezascalidad',
-                  'volumencalidad',
+                  
                   'volumentotal']
+        
+class nuevaMadera(forms.ModelForm):
+    class Meta:
+        model = Maderas
+        fields =['id_madera',
+                 'id_centrotrabajo',
+                 'codigo_madera',
+                 'espesor',
+                 'ancho',
+                 'largo',
+                 'diametro',
+                 'volumenxpieza',
+                 'cantidadxpaquete',
+                 'factor',
+                 'piezas',
+                 'volumentotal',
+                 'paquetes']
 

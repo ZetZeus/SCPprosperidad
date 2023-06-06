@@ -1,62 +1,157 @@
-<h1>Cepillado</h1>
 
-<form  method="post" action="/Rema/Cepillado">
-    {% csrf_token %}
-    <label for="fecha">Fecha</label>
-    <input type="date" name="fecha">
-    <br><br>
-    <label for="nombre_maquina">Elegir Maquina</label>
-    <select id="nombre_maquina" name="nombre_maquina">
-        {% for item in inf_maquinas %}
-            {% if item.id_centrotrabajo == 4 %}
-                <option value={{item.nombremaquina}}> {{item.nombremaquina}} </option>
-            {% endif %}
-        {% endfor %}
-    </select>
-    <br><br>
-    <label for="codigoMaderaAnt">Codigo Madera Anterior</label>
-    <select id="codigoMaderaAnt">
-        {% for item in inf_maderas %}
-            {% if item.id_centrotrabajo == 3 %}
-                <option value={{item.codigo_madera}}> {{item.codigo_madera}} </option>
-            {% endif %}
-        {% endfor %}
-    </select>
-    <br><br>
-    <label for="codigo_madera">Codigo Madera</label>
-    <select id="codigo_madera" name="codigo_madera">
-        {% for item in inf_maderas %}
-            {% if item.id_centrotrabajo == 4 %}
-                <option value={{item.codigo_madera}}> {{item.codigo_madera}} </option>
-            {% endif %}
-        {% endfor %}
-    </select>
-    <br><br>
-    <label for = "piezasentrada">Piezas Entrada </label>
-    <input id ="piezasentrada" type='number' name="piezasentrada"></input>
-    <br></br>
-
-    <label for = "piezassalida">Piezas Salida </label>
-    <input id ="piezassalida" type='number' name="piezassalida"></input> 
-    <br></br>
-
-    <label for = "piezasrechazohum">Rechazo Humedad </label>
-    <input id ="piezasrechazohum" type='number' name="piezasrechazohum"></input>
-    <br></br>
-
-    <label for = "piezasrechazodef">Rechazo Defecto </label>
-    <input id ="piezasrechazodef" type='number' name="piezasrechazodef"></input>
-    <br></br>
-
-    <label for = "piezasrechazoproc">Rechazo Cepillado </label>
-    <input id ="piezasrechazoproc" type='number' name="piezasrechazoproc"></input>
-    <br></br>
+<style>
+    *{
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    body{
+        min-height: 100vh;
+        background-color: #eaeaea;
+        display: flex;
+        font-family: 'Poppins';
+    }
+    .container{
+        margin: auto;
+        width: 500px;
+        max-width: 90%;
+        
+    }
+    .container form{
+        width: 100%;
+        height: 100%px;
+        padding: 20px;
+        background: white;
+        border-radius: 4px;
+        box-shadow: 0 8px 16px rgba(0,0,0,.3);
+    }
+    .container form h1{
+        text-align: center;
+        margin-bottom: 24px;
+        color: #222222;
+    }
+    .container form .form-control{
+        width: 100%;
+        height: 40px;
+        background: white;
+        border-radius: 4px;
+        border: 1px solid silver;
+        margin: 10px 0 18px 0;
+        padding: 0 10px;
+    }
+    .container  .btn{
+        margin-left: 50%;
+        transform: translateX(-50%);
+        width: 120px;
+        height: 34px;
+        border: none;
+        outline: none;
+        background: #038408;
+        cursor: pointer;
+        font-size: 16px;
+        border-radius: 4px;
+        transition: .3s;
+        color: white;
+    }
+    .container .btn:hover{
+        opacity: .4;
+        color: #222222;
+    }
+</style>
+<body>
     
 
-    <button type = "submit" > Ingresar</button>
-    <button type="submit">Prev</button>
+<div class="container">
+    {% if messages %}
+        {% for mensaje in messages %}
+            {{ mensaje }}
+        {%  endfor %}
+    
+    {% endif %}
+    
+    <form  method="post" action="/Rema/Cepillado">
+        {% csrf_token %}
+        <h1>Cepillado</h1>
+        <div class="form-group">
+            <label for="fecha">Fecha</label>
+            <input type="date" name="fecha" class="form-control">
+        </div>
+        
+        <div class="form-group">
+            <label for="nombre_maquina">Elegir Maquina</label>
+            <select id="nombre_maquina" name="nombre_maquina" class="form-control">
+                {% for item in inf_maquinas %}
+                    {% if item.id_centrotrabajo == 4 %}
+                        <option value={{item.nombremaquina}}> {{item.nombremaquina}} </option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="codigoMaderaAnt">Codigo Madera Anterior</label>
+            <select id="codigoMaderaAnt" class="form-control">
+                {% for item in inf_maderas %}
+                    {% if item.id_centrotrabajo == 3 %}
+                        <option value={{item.codigo_madera}}> {{item.codigo_madera}} </option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="codigo_madera">Codigo Madera</label>
+            <select id="codigo_madera" name="codigo_madera" class="form-control">
+                {% for item in inf_maderas %}
+                    {% if item.id_centrotrabajo == 4 %}
+                        <option value={{item.codigo_madera}}> {{item.codigo_madera}} </option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for = "piezasentrada">Piezas Entrada </label>
+            <input id ="piezasentrada" type='number' name="piezasentrada" class="form-control"></input>
+        </div>
+
+        <div class="form-group">
+            <label for = "piezassalida">Piezas Salida </label>
+            <input id ="piezassalida" type='number' name="piezassalida" class="form-control"></input> 
+        </div>
+
+        <div class="form-group">
+            <label for = "piezasrechazohum">Rechazo Humedad </label>
+            <input id ="piezasrechazohum" type='number' name="piezasrechazohum" class="form-control"></input>
+        </div>
+
+        <div class="form-group">
+            <label for = "piezasrechazodef">Rechazo Defecto </label>
+            <input id ="piezasrechazodef" type='number' name="piezasrechazodef" class="form-control"></input>
+        </div>
+
+        <div class="form-group">
+            <label for = "piezasrechazoproc">Rechazo Cepillado </label>
+            <input id ="piezasrechazoproc" type='number' name="piezasrechazoproc" class="form-control"></input>
+        </div>
+        
+
+        <button type = "submit" class="btn" > Ingresar</button>
+        <a href="/Rema/">
+            <button class="btn" >Volver a Rema</button>
+        </a>
+        
 
 
- 
+    
 
-</form>
+    </form>
+
+    
+
+    <a href="/Rema/nuevocodigo">
+        <button class="btn" >Ingresar nuevo codigo</button>
+    </a>
+
+</div>
+</body>

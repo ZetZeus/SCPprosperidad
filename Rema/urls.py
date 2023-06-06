@@ -10,5 +10,6 @@ urlpatterns = [
     path("Finger",views.fingerInfo),
     path("Moldurera",views.moldureraInfo),
     path("SalidaAserradero",views.aserraderoInfo),
-    path("EntradaAserradero",views.entradaAserraderoInfo)
+    path("EntradaAserradero",views.entradaAserraderoInfo),
+    path("nuevocodigo",views.nuevoCodigo)
 ]

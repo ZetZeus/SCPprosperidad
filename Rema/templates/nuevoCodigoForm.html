@@ -1,0 +1,37 @@
+<h1>Ingresar Nuevo Código</h1>
+<form method="post" action="/Rema/nuevocodigo">
+    {% csrf_token %}
+
+    <label for="codigo_madera">Nombre de código</label>
+    <input id="codigo_madera" type="text" name="codigo_madera">
+    <br><br>
+    
+    <label for="centroTrabajo">Centro de trabajo</label>
+    <select id="centroTrabajo" name="centroTrabajo">
+        {% for item in inf_ct %}
+            {% if item.id_area == 1 %}
+                <option value={{item.nombre_centrotrabajo}}> {{item.nombre_centrotrabajo}} </option>
+            {% endif %}
+        {% endfor %}
+    </select>
+    <br><br>
+
+    <label for="espesor">Espesor</label>
+    <input id="espesor" type="number" step="any" name="espesor">
+    <br><br>
+
+    <label for="ancho">Ancho</label>
+    <input id="ancho" type="number" step="any" name="ancho">
+    <br><br>
+
+    <label for="largo">Largo</label>
+    <input id="largo" type="number" step="any" name="largo">
+    <br><br>
+
+    <label for="cantidadxpaquete">Cantidad por paquete</label>
+    <input id="cantidadxpaquete" type="number" name="ancho">
+    <br><br>
+
+    <button type = "submit" > Ingresar</button>
+
+</form>
