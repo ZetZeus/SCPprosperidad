@@ -66,14 +66,14 @@ class Proceso(models.Model):
     nombre_maquina = models.CharField(max_length=255, blank=True, null=False)
     piezasentrada = models.IntegerField(db_column='piezasEntrada', blank=False, null=True)  # Field name made lowercase.
     piezassalida = models.IntegerField(db_column='piezasSalida', blank=False, null=True)  # Field name made lowercase.
-    volumenentrada = models.FloatField(db_column='volumenEntrada', blank=True, null=True)  # Field name made lowercase.
-    volumensalida = models.FloatField(db_column='volumenSalida', blank=True, null=True)  # Field name made lowercase.
+    volumenentrada = models.FloatField(db_column='volumenEntrada', blank=False, null=True)  # Field name made lowercase.
+    volumensalida = models.FloatField(db_column='volumenSalida', blank=False, null=True)  # Field name made lowercase.
     piezasrechazohum = models.IntegerField(db_column='piezasRechazoHum', blank=False, null=True)  # Field name made lowercase.
     piezasrechazodef = models.IntegerField(db_column='piezasRechazoDef', blank=False, null=True)  # Field name made lowercase.
     piezasrechazoproc = models.IntegerField(db_column='piezasRechazoProc', blank=False, null=True)  # Field name made lowercase.
-    volumenrechazohum = models.FloatField(db_column='volumenRechazoHum', blank=True, null=True)  # Field name made lowercase.
-    volumenrechazodef = models.FloatField(db_column='volumenRechazoDef', blank=True, null=True)  # Field name made lowercase.
-    volumenrechazoproc = models.FloatField(db_column='volumenRechazoProc', blank=True, null=True)  # Field name made lowercase.
+    volumenrechazohum = models.FloatField(db_column='volumenRechazoHum', blank=False, null=True)  # Field name made lowercase.
+    volumenrechazodef = models.FloatField(db_column='volumenRechazoDef', blank=False, null=True)  # Field name made lowercase.
+    volumenrechazoproc = models.FloatField(db_column='volumenRechazoProc', blank=False, null=True)  # Field name made lowercase.
     piezasreproceso = models.IntegerField(db_column='piezasReproceso', blank=False, null=True)  # Field name made lowercase.
     volumenreproceso = models.FloatField(db_column='volumenReproceso', blank=False, null=True)  # Field name made lowercase.
     piezascalidad = models.IntegerField(db_column='piezasCalidad', blank=False, null=True)  # Field name made lowercase.

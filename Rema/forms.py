@@ -23,7 +23,6 @@ class cepillado(forms.ModelForm):
                   'volumenrechazohum',
                   'volumenrechazodef',
                   'volumenrechazoproc',
-                  
                   'volumentotal']
         
 class nuevaMadera(forms.ModelForm):

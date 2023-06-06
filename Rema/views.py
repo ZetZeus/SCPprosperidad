@@ -68,18 +68,24 @@ def cepilladoInfo(request):
         update_data = request.POST.copy()
 
         idProceso = p+1
-        """update_data.update({'piezascalidad': '0',
-                            'piezasreproceso':'0',
-                            'volumenreproceso':'0',
-                            'volumencalidad':'0',
+        update_data.update({'id_proceso': idProceso,
+                            'id_madera':'0',
+                            'id_centrotrabajo':'0',
+                            'id_area':'0',
+                            'id_maquina': '0',
+                            'volumenentrada': '0',
+                            'volumensalida': '0',
+                            'volumenrechazohum': '0',
+                            'volumenrechazodef': '0',
+                            'volumenrechazoproc': '0',
+                            'volumentotal':'0',
                             })
         nuevo_form = cepillado(update_data)
         print(nuevo_form.data)
         print('\n')
-        print(nuevo_form.cleaned_data)"""
-        if form.is_valid():
+        if nuevo_form.is_valid():
             print('entrando a validar')
-            instance = form.save(commit=False)
+            instance = nuevo_form.save(commit=False)
             instance.id_proceso = p+1
             """instance.piezasreproceso = 0
             instance.volumenreproceso = 0
