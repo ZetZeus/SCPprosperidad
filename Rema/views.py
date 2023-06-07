@@ -55,6 +55,7 @@ def nuevoCodigo(request):
             ):
                 if (i.nombre_centrotrabajo == instance.nombre_centrotrabajo):
                     instance.id_centrotrabajo = i.id_centrotrabajo
+     
             
                 
             instance.save()
@@ -154,6 +155,10 @@ def cepilladoInfo(request):
             
 
             instance.save()
+            connection.cursor().execute("""
+            UPDATE "Maderas" SET "piezas" = "piezas" + %s WHERE "codigo_madera" = %s
+            """,(instance.piezassalida, instance.codigo_madera)) 
+            actualizarMadera() 
         else:
             messages.success(request, ('Error al ingresar'))
             return render(request,'cepilladoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
@@ -185,10 +190,11 @@ def trozadoInfo(request):
                             'volumensalida': '0',
                             'volumentotal':'0',})
         nuevo_form = trozado(update_data)
-
         if nuevo_form.is_valid():
             instance = nuevo_form.save(commit=False)
             instance.id_proceso = p+1
+            instance.codigo_madera_ant = update_data['codigo_madera_ant']
+
             for i in Maderas.objects.raw(
                 """
                 SELECT "id_madera", "codigo_madera", "espesor","ancho","largo" FROM "Maderas"
@@ -219,7 +225,17 @@ def trozadoInfo(request):
                     instance.id_maquina = i.id_maquina
             
 
-            instance.save()  
+            instance.save()
+
+            connection.cursor().execute("""
+            UPDATE "Maderas" SET "piezas" = "piezas" + %s WHERE "codigo_madera" = %s
+            """,(instance.piezassalida, instance.codigo_madera))
+
+            connection.cursor().execute("""
+            UPDATE "Maderas" SET "piezas" = "piezas" - %s WHERE "codigo_madera" = %s
+            """,(instance.piezasentrada,instance.codigo_madera_ant))
+
+            actualizarMadera() 
         else:
             messages.success(request, ('Error al ingresar'))
             return render(request,'trozadoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})

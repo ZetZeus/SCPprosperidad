@@ -75,9 +75,12 @@
                 <input id="codigo_madera" type="text" name="codigo_madera" class="form-control">
             </div>
 
+
+
             <div class="form-group">
                 <label for="nombre_centrotrabajo">Centro de trabajo</label>
                 <select id="nombre_centrotrabajo" name="nombre_centrotrabajo" class="form-control">
+                    
                     {% for item in inf_ct %}
                         {% if item.id_area == 1 %}
                             <option value={{item.nombre_centrotrabajo}}> {{item.nombre_centrotrabajo}} </option>

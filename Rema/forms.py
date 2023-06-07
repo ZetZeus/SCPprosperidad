@@ -13,6 +13,7 @@ class cepillado(forms.ModelForm):
                   'fecha',
                   'nombre_maquina',
                   'codigo_madera',
+                  'codigo_madera_ant',
                   'piezasentrada',
                   'piezassalida',
                   'volumenentrada',
@@ -84,6 +85,7 @@ class nuevaMadera(forms.ModelForm):
         model = Maderas
         fields =['id_madera',
                  'id_centrotrabajo',
+                 'nombre_centrotrabajo',
                  'codigo_madera',
                  'espesor',
                  'ancho',
@@ -94,6 +96,5 @@ class nuevaMadera(forms.ModelForm):
                  'factor',
                  'piezas',
                  'volumentotal',
-                 'paquetes',
-                 'nombre_centrotrabajo']
+                 'paquetes']
 

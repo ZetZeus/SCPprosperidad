@@ -26,6 +26,7 @@ class Centrotrabajo(models.Model):
 class Maderas(models.Model):
     id_madera = models.IntegerField(primary_key=True)
     id_centrotrabajo = models.IntegerField(db_column='id_centroTrabajo', blank=False, null=True)  # Field name made lowercase.
+    nombre_centrotrabajo = models.CharField(db_column='nombre_centroTrabajo', max_length=255, blank=False, null=True)  # Field name made lowercase.   
     codigo_madera = models.CharField(max_length=255, blank=False, null=False)
     espesor = models.FloatField(blank=False, null=True)
     ancho = models.FloatField(blank=False, null=True)
@@ -37,7 +38,6 @@ class Maderas(models.Model):
     piezas = models.FloatField(blank=False, null=True)
     volumentotal = models.FloatField(db_column='volumenTotal', blank=False, null=True)  # Field name made lowercase.
     paquetes = models.FloatField(blank=False, null=True)
-    nombre_centrotrabajo = models.CharField(db_column='nombre_centroTrabajo', max_length=255, blank=False, null=True)  # Field name made lowercase.   
 
 
     class Meta:
@@ -63,6 +63,7 @@ class Proceso(models.Model):
     id_centrotrabajo = models.IntegerField(db_column='id_centroTrabajo', blank=True, null=False)  # Field name made lowercase.
     id_maquina = models.IntegerField(blank=True, null=False)
     codigo_madera = models.CharField(max_length=255, blank=True, null=False)
+    codigo_madera_ant = models.CharField(max_length=255, blank=True, null=False)
     fecha = models.DateField(blank=True, null=False)
     nombre_centrotrabajo = models.CharField(db_column='nombre_centroTrabajo', max_length=255, blank=True, null=False)  # Field name made lowercase.   
     nombre_maquina = models.CharField(max_length=255, blank=True, null=False)
