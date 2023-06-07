@@ -1,17 +1,29 @@
 from django.shortcuts import render
 from django.db.models import Max
 from django.contrib import messages
+from django.db import connection
 
 # Create your views here.
 from django.http import HttpResponse
 from .models import Centrotrabajo,Area, Maquina, Maderas, Proceso
-from .forms import cepillado,trozado,finger, nuevaMadera
+from .forms import cepillado,trozado,finger,moldurera, nuevaMadera
 
 
 
 def home(request):
     info_area = Centrotrabajo.objects.all
     return render(request, 'homeRema.html',{'todo': info_area})
+
+def actualizarMadera():
+    with connection.cursor() as cursor:
+        cursor.execute("""
+        UPDATE "Maderas"
+SET "volumenxPieza" = ("espesor"*"ancho"*"largo")/1000000, "factor" = 1/"cantidadxPaquete", "paquetes" = "piezas"/"cantidadxPaquete"
+""")
+        cursor.execute("""
+        UPDATE "Maderas"
+SET "volumenTotal" = "volumenxPieza"*"piezas"
+        """)
 
 def nuevoCodigo(request):
     info_maderas = Maderas.objects.all
@@ -81,10 +93,8 @@ def cepilladoInfo(request):
                             'volumentotal':'0',
                             })
         nuevo_form = cepillado(update_data)
-        print(nuevo_form.data)
-        print('\n')
+        
         if nuevo_form.is_valid():
-            print('entrando a validar')
             instance = nuevo_form.save(commit=False)
             instance.id_proceso = p+1
            
@@ -127,9 +137,9 @@ def cepilladoInfo(request):
                     instance.nombre_centrotrabajo = i.centrotrabajomaquina
                     instance.id_maquina = i.id_maquina
             
+
             instance.save()
         else:
-            print('el formulario no es valido')
             messages.success(request, ('Error al ingresar'))
             return render(request,'cepilladoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
         
@@ -194,7 +204,6 @@ def trozadoInfo(request):
                     instance.id_maquina = i.id_maquina
             
 
-                
             instance.save()  
         else:
             messages.success(request, ('Error al ingresar'))
@@ -236,7 +245,6 @@ def fingerInfo(request):
                 if (i.codigo_madera == instance.codigo_madera):
                     instance.id_madera = i.id_madera
                 if(instance.piezasentrada != None):
-
                     instance.volumenentrada = ((i.espesor * i.ancho * i.largo) * instance.piezasentrada) / 1000000
                 if(instance.piezascalidad != None):
                     instance.volumencalidad = ((i.espesor * i.ancho * i.largo) * instance.piezascalidad) / 1000000
@@ -258,7 +266,14 @@ def fingerInfo(request):
                     instance.nombre_centrotrabajo = i.centrotrabajomaquina
                     instance.id_maquina = i.id_maquina
             
-
+            cantidadMaderaCep = Proceso.objects.raw(
+                """
+                SELECT "codigo_madera", SUM("volumenTotal") as "Volumen Total en m3"  FROM "Proceso"
+                WHERE "id_centroTrabajo" = 4
+                GROUP BY "codigo_madera"
+                """
+            )
+            print(cantidadMaderaCep)
                 
             instance.save() 
         else:
@@ -275,9 +290,22 @@ def moldureraInfo(request):
     info_maderas = Maderas.objects.all
     p = Proceso.objects.aggregate(Max('id_proceso')).get('id_proceso__max')
     if request.method == "POST":
-        form = cepillado(request.POST or None)
-        if form.is_valid():
-            instance = form.save(commit=False)
+        form = moldurera(request.POST or None)
+        update_data = request.POST.copy()
+        idProceso = p+1
+        update_data.update({'id_proceso': idProceso,
+                            'id_madera':'0',
+                            'id_centrotrabajo':'0',
+                            'id_area':'0',
+                            'id_maquina': '0',
+                            'volumenentrada': '0',
+                            'volumencalidad': '0',
+                            'volumentotal':'0',
+                            'volumenrechazoproc': '0',
+                            })
+        nuevo_form = finger(update_data)
+        if nuevo_form.is_valid():
+            instance = nuevo_form.save(commit=False)
             instance.id_proceso = p+1
             for i in Maderas.objects.raw(
                 """
@@ -287,11 +315,18 @@ def moldureraInfo(request):
             ):
                 if (i.codigo_madera == instance.codigo_madera):
                     instance.id_madera = i.id_madera
+
+                if (instance.piezasentrada != None):    
                     instance.volumenentrada = ((i.espesor * i.ancho * i.largo) * instance.piezasentrada) / 1000000
+                    
+                if(instance.piezascalidad != None):    
                     instance.volumencalidad = ((i.espesor * i.ancho * i.largo) * instance.piezascalidad) / 1000000
+                    
+                if (instance.piezasrechazoproc != None):    
                     instance.volumenrechazoproc = ((i.espesor * i.ancho * i.largo) * instance.piezasrechazoproc) / 1000000
 
-                
+                instance.volumentotal = instance.volumencalidad + instance.volumenrechazoproc
+
 
             instance.id_area = 1
             instance.id_centrotrabajo = 7
@@ -306,9 +341,12 @@ def moldureraInfo(request):
                     instance.id_maquina = i.id_maquina
             
 
-            instance.volumentotal = instance.volumencalidad + instance.volumenrechazoproc
                 
-            instance.save()    
+            instance.save()   
+        else:
+            messages.success(request,('Error al ingresar'))
+            return render(request,'moldureraForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+ 
         return render(request,'moldureraForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
 
     else:

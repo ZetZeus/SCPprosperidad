@@ -60,6 +60,25 @@ class finger(forms.ModelForm):
                   'volumenreproceso',
                   'volumentotal']
 
+class moldurera(forms.ModelForm):
+    class Meta:
+        model = Proceso
+        fields = ['id_proceso',
+                  'id_madera',
+                  'id_area',
+                  'id_centrotrabajo',
+                  'id_maquina',
+                  'fecha',
+                  'nombre_maquina',
+                  'codigo_madera',
+                  'piezasentrada',
+                  'piezascalidad',
+                  'volumenentrada',
+                  'volumencalidad',
+                  'piezasrechazoproc',
+                  'volumenrechazoproc',
+                  'volumentotal']        
+
 class nuevaMadera(forms.ModelForm):
     class Meta:
         model = Maderas
