@@ -25,18 +25,20 @@ class Centrotrabajo(models.Model):
 
 class Maderas(models.Model):
     id_madera = models.IntegerField(primary_key=True)
-    id_centrotrabajo = models.IntegerField(db_column='id_centroTrabajo', blank=True, null=True)  # Field name made lowercase.
-    codigo_madera = models.CharField(max_length=255, blank=True, null=True)
-    espesor = models.FloatField(blank=True, null=True)
-    ancho = models.FloatField(blank=True, null=True)
-    largo = models.FloatField(blank=True, null=True)
-    diametro = models.FloatField(blank=True, null=True)
-    volumenxpieza = models.FloatField(db_column='volumenxPieza', blank=True, null=True)  # Field name made lowercase.
-    cantidadxpaquete = models.FloatField(db_column='cantidadxPaquete', blank=True, null=True)  # Field name made lowercase.
-    factor = models.FloatField(blank=True, null=True)
-    piezas = models.FloatField(blank=True, null=True)
-    volumentotal = models.FloatField(db_column='volumenTotal', blank=True, null=True)  # Field name made lowercase.
-    paquetes = models.FloatField(blank=True, null=True)
+    id_centrotrabajo = models.IntegerField(db_column='id_centroTrabajo', blank=False, null=True)  # Field name made lowercase.
+    codigo_madera = models.CharField(max_length=255, blank=False, null=False)
+    espesor = models.FloatField(blank=False, null=True)
+    ancho = models.FloatField(blank=False, null=True)
+    largo = models.FloatField(blank=False, null=True)
+    diametro = models.FloatField(blank=False, null=True)
+    volumenxpieza = models.FloatField(db_column='volumenxPieza', blank=False, null=True)  # Field name made lowercase.
+    cantidadxpaquete = models.FloatField(db_column='cantidadxPaquete', blank=False, null=True)  # Field name made lowercase.
+    factor = models.FloatField(blank=False, null=True)
+    piezas = models.FloatField(blank=False, null=True)
+    volumentotal = models.FloatField(db_column='volumenTotal', blank=False, null=True)  # Field name made lowercase.
+    paquetes = models.FloatField(blank=False, null=True)
+    nombre_centrotrabajo = models.CharField(db_column='nombre_centroTrabajo', max_length=255, blank=False, null=True)  # Field name made lowercase.   
+
 
     class Meta:
         managed = False

@@ -25,7 +25,7 @@
         border-radius: 4px;
         box-shadow: 0 8px 16px rgba(0,0,0,.3);
     }
-    .container form h1{
+    .container form h2{
         text-align: center;
         margin-bottom: 24px;
         color: #222222;
@@ -60,9 +60,15 @@
 <body>
 
     <div class="container">
+        {% if messages %}
+            {% for mensaje in messages %}
+                {{ mensaje }}
+            {%  endfor %}
+            
+        {% endif %}
         <form method="post" action="/Rema/nuevocodigo">
             {% csrf_token %}
-            <h1>Ingresar Nuevo Código</h1>
+            <h2>Ingresar Nuevo Código</h2>
             
             <div class="form-group">
                 <label for="codigo_madera">Nombre de código</label>
@@ -70,8 +76,8 @@
             </div>
 
             <div class="form-group">
-                <label for="centroTrabajo">Centro de trabajo</label>
-                <select id="centroTrabajo" name="centroTrabajo" class="form-control">
+                <label for="nombre_centrotrabajo">Centro de trabajo</label>
+                <select id="nombre_centrotrabajo" name="nombre_centrotrabajo" class="form-control">
                     {% for item in inf_ct %}
                         {% if item.id_area == 1 %}
                             <option value={{item.nombre_centrotrabajo}}> {{item.nombre_centrotrabajo}} </option>
@@ -96,8 +102,13 @@
             </div>
 
             <div class="form-group">
+                <label for="diametro">Diametro</label>
+                <input id="diametro" type="number" step="any" name="diametro" class="form-control">
+            </div>
+
+            <div class="form-group">
                 <label for="cantidadxpaquete">Cantidad por paquete</label>
-                <input id="cantidadxpaquete" type="number" name="ancho" class="form-control">
+                <input id="cantidadxpaquete" type="number" name="cantidadxpaquete" class="form-control">
             </div>
 
             <button type = "submit" class="btn" > Ingresar</button>

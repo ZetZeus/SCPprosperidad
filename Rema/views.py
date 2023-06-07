@@ -28,13 +28,24 @@ SET "volumenTotal" = "volumenxPieza"*"piezas"
 def nuevoCodigo(request):
     info_maderas = Maderas.objects.all
     info_ct = Centrotrabajo.objects.all
-    p = Proceso.objects.aggregate(Max('id_madera')).get('id_madera__max')
+    p = Maderas.objects.aggregate(Max('id_madera')).get('id_madera__max')
     if request.method == "POST":
         form = nuevaMadera(request.POST or None)
-        if form.is_valid():
-            instance = form.save(commit=False)
+        update_data = request.POST.copy()
+        idMadera = p+1
+        update_data.update({'id_madera': idMadera,
+                            'id_centrotrabajo':'0',
+                            'volumenxpieza':'0',
+                            'factor':'0',
+                            'volumentotal':'0',
+                            'piezas':'0',
+                            'paquetes':'0'})
+        nuevo_form = nuevaMadera(update_data)
+        if nuevo_form.is_valid():
+            instance = nuevo_form.save(commit=False)
             instance.id_madera = p+1
-            print('comprobando si el form es valido')
+        
+            
 
             for i in Centrotrabajo.objects.raw(
                 """
@@ -42,13 +53,17 @@ def nuevoCodigo(request):
                 
                 """
             ):
-                print(i.nombre_centroTrabajo, instance.centroTrabajo)
-                
-                if (i.nombre_centroTrabajo == instance.centroTrabajo):
-                    print('nombres despues del if',i.nombre_centrotrabajo, instance.centroTrabajo)
+                if (i.nombre_centrotrabajo == instance.nombre_centrotrabajo):
                     instance.id_centrotrabajo = i.id_centrotrabajo
+            
                 
-            instance.save()    
+            instance.save()
+            actualizarMadera()
+
+        else:
+            messages.success(request,("Error al ingresar"))
+            return render(request,'nuevoCodigoForm.html', {'inf_madera': info_maderas, 'inf_ct':info_ct})
+                
         return render(request,'nuevoCodigoForm.html', {'inf_madera': info_maderas, 'inf_ct':info_ct})
 
     else:

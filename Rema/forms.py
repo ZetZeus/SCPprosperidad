@@ -94,5 +94,6 @@ class nuevaMadera(forms.ModelForm):
                  'factor',
                  'piezas',
                  'volumentotal',
-                 'paquetes']
+                 'paquetes',
+                 'nombre_centrotrabajo']
 
