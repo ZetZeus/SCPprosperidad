@@ -84,9 +84,9 @@
                 {%  endfor %}
             
         {% endif %}
-        <form method="post" action="/Rema/Moldurera">
+        <form method="post" action="/Rema/Reproceso">
             {% csrf_token %}
-            <h1>Moldurera</h1>
+            <h1>Reproceso</h1>
             <div class="form-group">
                 <label for="fecha">Fecha</label>
                 <input type="date" name="fecha" class="form-control">
@@ -127,8 +127,8 @@
 
 
             <div class="form-group">
-                <label for = "piezasentrada">Piezas </label>
-                <input id ="piezasentrada" type='number' name="piezasentrada" class="form-control"></input>
+                <label for = "piezassalida">Piezas </label>
+                <input id ="piezassalida" type='number' name="piezassalida" class="form-control"></input>
             </div>
 
             <button type = "submit" class="btn"> Ingresar</button>

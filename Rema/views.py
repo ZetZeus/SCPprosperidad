@@ -6,7 +6,7 @@ from django.db import connection
 # Create your views here.
 from django.http import HttpResponse
 from .models import Centrotrabajo,Area, Maquina, Maderas, Proceso
-from .forms import cepillado,trozado,finger,moldurera,reproceso, nuevaMadera
+from .forms import aserradero,secado,cepillado,trozado,finger,moldurera,reproceso, nuevaMadera
 
 
 
@@ -88,12 +88,132 @@ def entradaAserraderoInfo(request):
 def aserraderoInfo(request):
     info_maquinas = Maquina.objects.all
     info_maderas = Maderas.objects.all
-    return render(request,'salidaAseForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
+    p = Proceso.objects.aggregate(Max('id_proceso')).get('id_proceso__max')
+    if request.method == "POST":
+        form = aserradero(request.POST or None)
+        update_data = request.POST.copy()
+        idProceso = p+1
+        update_data.update({'id_proceso': idProceso,
+                            'id_madera':'0',
+                            'id_centrotrabajo':'0',
+                            'id_area':'0',
+                            'id_maquina': '0',
+                            'volumenentrada': '0',
+                            'volumentotal':'0'})
+        nuevo_form = aserradero(update_data)
+
+        if nuevo_form.is_valid():
+            instance = nuevo_form.save(commit=False)
+            instance.id_proceso = p+1
+
+            for i in Maderas.objects.raw(
+                """
+                SELECT "id_madera", "codigo_madera", "espesor","ancho","largo" FROM "Maderas"
+                WHERE "id_centroTrabajo" = 4
+                """
+            ):
+                if (i.codigo_madera == instance.codigo_madera):
+                    instance.id_madera = i.id_madera
+                
+                if (instance.piezasentrada != None):
+                    instance.volumenentrada = ((i.espesor * i.ancho * i.largo) * instance.piezasentrada) / 1000000
+                
+                instance.volumentotal = instance.volumenentrada
+
+            instance.id_area = 1
+            instance.id_centrotrabajo = 2
+
+            for i in Maquina.objects.raw(
+                """
+                SELECT "id_maquina","nombreMaquina" FROM "Maquina"
+                WHERE "centroTrabajoMaquina" = 'Secado'
+                """
+            ):
+                    if (i.nombremaquina == instance.nombre_maquina):
+                        instance.nombre_centrotrabajo = i.centrotrabajomaquina
+                        instance.id_maquina = i.id_maquina
+            instance.save()
+            connection.cursor().execute("""
+            UPDATE "Maderas" SET "piezas" = "piezas" + %s WHERE "codigo_madera" = %s
+            """,(instance.piezassalida, instance.codigo_madera)) 
+            actualizarMadera()
+        else:
+            messages.success(request,('Error al ingresar'))
+            return render(request,'salidaAseForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
+        return render(request,'salidaAseForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
+    
+    else:
+        return render(request,'salidaAseForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
 
 def secadoInfo(request):
     info_maquinas = Maquina.objects.all
     info_maderas = Maderas.objects.all
-    return render(request,'secadoForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
+    p = Proceso.objects.aggregate(Max('id_proceso')).get('id_proceso__max')
+    if request.method == "POST":
+        form = secado(request.POST or None)
+        update_data = request.POST.copy()
+        idProceso = p+1
+        update_data.update({'id_proceso': idProceso,
+                            'id_madera':'0',
+                            'id_centrotrabajo':'0',
+                            'id_area':'0',
+                            'id_maquina': '0',
+                            'volumenentrada': '0',
+                            'volumensalida': '0',
+                            'volumentotal':'0',})
+        nuevo_form = secado(update_data)
+
+        if nuevo_form.is_valid():
+            instance = nuevo_form.save(commit=False)
+            instance.id_proceso = p+1
+
+            for i in Maderas.objects.raw(
+                """
+                SELECT "id_madera", "codigo_madera", "espesor","ancho","largo" FROM "Maderas"
+                WHERE "id_centroTrabajo" = 4
+                """
+            ):
+                if (i.codigo_madera == instance.codigo_madera):
+                    instance.id_madera = i.id_madera
+                
+                if (instance.piezasentrada != None):
+                    instance.volumenentrada = ((i.espesor * i.ancho * i.largo) * instance.piezasentrada) / 1000000
+
+                if(instance.piezassalida != None):    
+                    instance.volumensalida = ((i.espesor * i.ancho * i.largo) * instance.piezassalida) / 1000000
+
+                instance.volumentotal = instance.volumensalida
+
+                instance.id_area = 1
+                instance.id_centrotrabajo = 3
+
+                for i in Maquina.objects.raw(
+                """
+                SELECT "id_maquina","nombreMaquina" FROM "Maquina"
+                WHERE "centroTrabajoMaquina" = 'Secado'
+                """
+            ):
+                    if (i.nombremaquina == instance.nombre_maquina):
+                        instance.nombre_centrotrabajo = i.centrotrabajomaquina
+                        instance.id_maquina = i.id_maquina
+                instance.save()
+                connection.cursor().execute("""
+                UPDATE "Maderas" SET "piezas" = "piezas" + %s WHERE "codigo_madera" = %s
+                """,(instance.piezassalida, instance.codigo_madera)) 
+                actualizarMadera() 
+        else:
+            messages.success(request, ('Error al ingresar'))
+            return render(request,'secadoForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
+        
+
+        
+        return render(request,'secadoForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
+    
+
+
+    else:
+        return render(request,'secadoForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
+
 
 def cepilladoInfo(request):
     info_maquinas = Maquina.objects.all
@@ -166,6 +286,10 @@ def cepilladoInfo(request):
             connection.cursor().execute("""
             UPDATE "Maderas" SET "piezas" = "piezas" + %s WHERE "codigo_madera" = %s
             """,(instance.piezassalida, instance.codigo_madera)) 
+            connection.cursor().execute("""
+            UPDATE "Maderas" SET "piezas" = "piezas" - %s WHERE "codigo_madera" = %s
+            """,(instance.piezasentrada,instance.codigo_madera_ant))
+
             actualizarMadera() 
         else:
             messages.success(request, ('Error al ingresar'))
@@ -253,6 +377,7 @@ def trozadoInfo(request):
     else:
         return render(request,'trozadoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
 
+
 def fingerInfo(request):
     info_maquinas = Maquina.objects.all
     info_maderas = Maderas.objects.all
@@ -304,17 +429,17 @@ def fingerInfo(request):
                 if (i.nombremaquina == instance.nombre_maquina):
                     instance.nombre_centrotrabajo = i.centrotrabajomaquina
                     instance.id_maquina = i.id_maquina
-            
-            cantidadMaderaCep = Proceso.objects.raw(
-                """
-                SELECT "codigo_madera", SUM("volumenTotal") as "Volumen Total en m3"  FROM "Proceso"
-                WHERE "id_centroTrabajo" = 4
-                GROUP BY "codigo_madera"
-                """
-            )
-            print(cantidadMaderaCep)
-                
-            instance.save() 
+             
+            instance.save()
+
+            connection.cursor().execute("""
+                UPDATE "Maderas" SET "piezas" = "piezas" + %s WHERE "codigo_madera" = %s
+                """,(instance.piezascalidad, instance.codigo_madera)) 
+            connection.cursor().execute("""
+            UPDATE "Maderas" SET "piezas" = "piezas" - %s WHERE "codigo_madera" = %s
+            """,(instance.piezasentrada,instance.codigo_madera_ant))
+
+            actualizarMadera() 
         else:
             messages.success(request, ('Error al ingresar'))
             return render(request,'fingerForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
@@ -323,6 +448,7 @@ def fingerInfo(request):
 
     else:
         return render(request,'fingerForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+
 
 def moldureraInfo(request):
     info_maquinas = Maquina.objects.all
@@ -379,9 +505,15 @@ def moldureraInfo(request):
                     instance.nombre_centrotrabajo = i.centrotrabajomaquina
                     instance.id_maquina = i.id_maquina
             
+            instance.save()
+            connection.cursor().execute("""
+                UPDATE "Maderas" SET "piezas" = "piezas" + %s WHERE "codigo_madera" = %s
+                """,(instance.piezascalidad, instance.codigo_madera)) 
+            connection.cursor().execute("""
+            UPDATE "Maderas" SET "piezas" = "piezas" - %s WHERE "codigo_madera" = %s
+            """,(instance.piezasentrada,instance.codigo_madera_ant))
 
-                
-            instance.save()   
+            actualizarMadera()   
         else:
             messages.success(request,('Error al ingresar'))
             return render(request,'moldureraForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
@@ -390,6 +522,7 @@ def moldureraInfo(request):
 
     else:
         return render(request,'moldureraForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+
 
 def reprocesoInfo(request):
     info_maquinas = Maquina.objects.all
@@ -404,7 +537,7 @@ def reprocesoInfo(request):
                             'id_centrotrabajo':'0',
                             'id_area':'0',
                             'id_maquina': '0',
-                            'volumenentrada':'0',
+                            'volumensalida':'0',
                             'volumentotal':'0'})
         nuevo_form = reproceso(update_data)
         if nuevo_form.is_valid():
@@ -419,10 +552,10 @@ def reprocesoInfo(request):
                 if (i.codigo_madera == instance.codigo_madera):
                     instance.id_madera = i.id_madera
                 
-                if(instance.piezasentrada != None):
-                    instance.volumenentrada = ((i.espesor * i.ancho * i.largo) * instance.piezasentrada) / 1000000
+                if(instance.piezassalida != None):
+                    instance.volumensalida = ((i.espesor * i.ancho * i.largo) * instance.piezassalida) / 1000000
 
-                instance.volumentotal = instance.volumenentrada
+                instance.volumentotal = instance.volumensalida
             instance.id_area = 1
             instance.id_centrotrabajo = 7
             for i in Maquina.objects.raw(

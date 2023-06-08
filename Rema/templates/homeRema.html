@@ -1,5 +1,8 @@
 <head>
-
+    <title>Rema</title>
+    <link rel = "icon" href = 
+"https://prosperidad.cl/wp-content/uploads/2018/06/Prosperidad_Maqueta_Web-1.jpg" 
+        type = "image/x-icon">
 <style>
     *{
         margin-top: 10px;
@@ -24,7 +27,7 @@
         box-shadow: 0 8px 16px rgba(0,0,0,.3);
     }
     .container h1{
-        text-align: center;
+        text-align: start;
     }
     .elements{
         display: grid;
@@ -46,14 +49,40 @@
         transition: .3s;
         color: white;
     }
+    .btn:hover{
+        opacity: .7;
+        color: #222222;
+    }
+    .btninicio{
+        margin-left: 20%;
+        width: 150px;
+        height: 34px;
+        border: none;
+        outline: none;
+        background: #038408;
+        cursor: pointer;
+        font-size: 16px;
+        border-radius: 4px;
+        transition: .3s;
+        color: white;
+    }
+    .btninicio:hover{
+        opacity: .7;
+        color: #222222;
+    }
+    img{
+        margin-left: 37%;
+    }
+    
 </style>
 
 <body>
     
-
     <div class="wrapper">
         <div class="container">
             <h1>Centro Trabajos Rema</h1>
+            <img src="https://puropellet.cl/wp-content/uploads/2014/12/logo-maderas-prosperidad.png" alt="logo-maderas-prosperidad">
+
             <div class="elements">
             {% for item in todo %}
                     <button class="btn" onclick="location.href = '/Rema/{{item.nombre_centrotrabajo}}' ">
@@ -61,7 +90,15 @@
                     </button>     
             {% endfor %}
             </div>
+            <br><br><br><br><br>
+            <a href="/">
+                <button class="btninicio" >Volver a Inicio</button>
+            </a>
+            <br><br>
+
         </div>
+        
     </div>
+
 </body>    
 </head>

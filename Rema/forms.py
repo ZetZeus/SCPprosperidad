@@ -1,6 +1,36 @@
 from django import forms
 from .models import Area, Centrotrabajo,Maquina,Maderas,Proceso
 
+class aserradero(forms.ModelForm):
+    class Meta:
+        model = Proceso
+        fields = ['id_proceso',
+                  'id_madera',
+                  'id_area',
+                  'id_centrotrabajo',
+                  'id_maquina',
+                  'fecha',
+                  'nombre_maquina',
+                  'codigo_madera',
+                  'piezassalida',
+                  'volumensalida',
+                  'volumentotal']
+class secado(forms.ModelForm):
+    class Meta:
+        model = Proceso
+        fields = ['id_proceso',
+                  'id_madera',
+                  'id_area',
+                  'id_centrotrabajo',
+                  'id_maquina',
+                  'fecha',
+                  'nombre_maquina',
+                  'codigo_madera',
+                  'piezasentrada',
+                  'piezassalida',
+                  'volumenentrada',
+                  'volumensalida',
+                  'volumentotal']
 class cepillado(forms.ModelForm):
 
     class Meta:
@@ -90,8 +120,8 @@ class reproceso(forms.ModelForm):
                   'fecha',
                   'nombre_maquina',
                   'codigo_madera',
-                  'piezasentrada',
-                  'volumenentrada',
+                  'piezassalida',
+                  'volumensalida',
                   'volumentotal']        
 
 class nuevaMadera(forms.ModelForm):
