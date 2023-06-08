@@ -38,6 +38,8 @@ class Maderas(models.Model):
     piezas = models.FloatField(blank=False, null=True)
     volumentotal = models.FloatField(db_column='volumenTotal', blank=False, null=True)  # Field name made lowercase.
     paquetes = models.FloatField(blank=False, null=True)
+    reproceso = models.FloatField(blank = False, null = True)
+    volumenreproceso = models.FloatField(blank=False,null=True)
 
 
     class Meta:

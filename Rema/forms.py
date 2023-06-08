@@ -140,5 +140,7 @@ class nuevaMadera(forms.ModelForm):
                  'factor',
                  'piezas',
                  'volumentotal',
-                 'paquetes']
+                 'paquetes',
+                 'reproceso',
+                 'volumenreproceso']
 
