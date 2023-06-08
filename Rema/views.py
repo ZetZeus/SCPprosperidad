@@ -6,7 +6,7 @@ from django.db import connection
 # Create your views here.
 from django.http import HttpResponse
 from .models import Centrotrabajo,Area, Maquina, Maderas, Proceso
-from .forms import cepillado,trozado,finger,moldurera, nuevaMadera
+from .forms import cepillado,trozado,finger,moldurera,reproceso, nuevaMadera
 
 
 
@@ -44,7 +44,15 @@ def nuevoCodigo(request):
         if nuevo_form.is_valid():
             instance = nuevo_form.save(commit=False)
             instance.id_madera = p+1
-        
+
+            for j in Maderas.objects.raw(
+                """
+                SELECT "id_madera", "codigo_madera" FROM "Maderas"
+                """
+            ):
+                if(j.codigo_madera == instance.codigo_madera):
+                    messages.success(request,("Error ese nombre de codigo ya existe"))
+                    return render(request,'nuevoCodigoForm.html', {'inf_madera': info_maderas, 'inf_ct':info_ct})
             
 
             for i in Centrotrabajo.objects.raw(
@@ -334,14 +342,14 @@ def moldureraInfo(request):
                             'volumentotal':'0',
                             'volumenrechazoproc': '0',
                             })
-        nuevo_form = finger(update_data)
+        nuevo_form = moldurera(update_data)
         if nuevo_form.is_valid():
             instance = nuevo_form.save(commit=False)
             instance.id_proceso = p+1
             for i in Maderas.objects.raw(
                 """
                 SELECT "id_madera", "codigo_madera", "espesor","ancho","largo" FROM "Maderas"
-                WHERE "id_centroTrabajo" = 7
+                WHERE "id_centroTrabajo" = 8
                 """
             ):
                 if (i.codigo_madera == instance.codigo_madera):
@@ -360,7 +368,7 @@ def moldureraInfo(request):
 
 
             instance.id_area = 1
-            instance.id_centrotrabajo = 7
+            instance.id_centrotrabajo = 8
             for i in Maquina.objects.raw(
                 """
                 SELECT "id_maquina","nombreMaquina" FROM "Maquina"
@@ -383,4 +391,56 @@ def moldureraInfo(request):
     else:
         return render(request,'moldureraForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
 
- 
+def reprocesoInfo(request):
+    info_maquinas = Maquina.objects.all
+    info_maderas = Maderas.objects.all
+    p = Proceso.objects.aggregate(Max('id_proceso')).get('id_proceso__max')
+    if request.method == "POST":
+        form = reproceso(request.POST or None)
+        update_data = request.POST.copy()
+        idProceso = p+1
+        update_data.update({'id_proceso': idProceso,
+                            'id_madera':'0',
+                            'id_centrotrabajo':'0',
+                            'id_area':'0',
+                            'id_maquina': '0',
+                            'volumenentrada':'0',
+                            'volumentotal':'0'})
+        nuevo_form = reproceso(update_data)
+        if nuevo_form.is_valid():
+            instance = nuevo_form.save(commit=False)
+            instance.id_proceso = p+1
+            for i in Maderas.objects.raw(
+                """
+                SELECT "id_madera", "codigo_madera", "espesor","ancho","largo" FROM "Maderas"
+                WHERE "id_centroTrabajo" = 8
+                """
+            ):
+                if (i.codigo_madera == instance.codigo_madera):
+                    instance.id_madera = i.id_madera
+                
+                if(instance.piezasentrada != None):
+                    instance.volumenentrada = ((i.espesor * i.ancho * i.largo) * instance.piezasentrada) / 1000000
+
+                instance.volumentotal = instance.volumenentrada
+            instance.id_area = 1
+            instance.id_centrotrabajo = 7
+            for i in Maquina.objects.raw(
+                """
+                SELECT "id_maquina","nombreMaquina" FROM "Maquina"
+                WHERE "centroTrabajoMaquina" = 'Reproceso'
+                """
+            ):
+                if (i.nombremaquina == instance.nombre_maquina):
+                    instance.nombre_centrotrabajo = i.centrotrabajomaquina
+                    instance.id_maquina = i.id_maquina
+
+            instance.save()
+        else:
+            messages.success(request,('Error al ingresar'))
+            return render(request,'reprocesoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas}) 
+        return render(request,'reprocesoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+    else:
+        return render(request,'reprocesoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+
+    

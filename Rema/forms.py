@@ -78,6 +78,20 @@ class moldurera(forms.ModelForm):
                   'volumencalidad',
                   'piezasrechazoproc',
                   'volumenrechazoproc',
+                  'volumentotal']
+class reproceso(forms.ModelForm):
+    class Meta:
+        model = Proceso
+        fields = ['id_proceso',
+                  'id_madera',
+                  'id_area',
+                  'id_centrotrabajo',
+                  'id_maquina',
+                  'fecha',
+                  'nombre_maquina',
+                  'codigo_madera',
+                  'piezasentrada',
+                  'volumenentrada',
                   'volumentotal']        
 
 class nuevaMadera(forms.ModelForm):

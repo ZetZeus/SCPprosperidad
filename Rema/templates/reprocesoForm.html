@@ -96,7 +96,7 @@
                 <label for="nombre_maquina">Elegir Maquina</label>
                 <select id="nombre_maquina" name="nombre_maquina" class="form-control">
                     {% for item in inf_maquinas %}
-                        {% if item.id_centrotrabajo == 8 %}
+                        {% if item.id_centrotrabajo == 7 %}
                             <option value={{item.nombremaquina}}> {{item.nombremaquina}} </option>
                         {% endif %}
                     {% endfor %}
@@ -118,7 +118,7 @@
                 <label for="codigo_madera">Codigo Madera</label>
                 <select id="codigo_madera" name="codigo_madera" class="form-control">
                     {% for item in inf_maderas %}
-                        {% if item.id_centrotrabajo == 8 %}
+                        {% if item.id_centrotrabajo == 7 %}
                             <option value={{item.codigo_madera}}> {{item.codigo_madera}} </option>
                         {% endif %}
                     {% endfor %}
@@ -127,19 +127,10 @@
 
 
             <div class="form-group">
-                <label for = "piezasentrada">Piezas Entrada </label>
+                <label for = "piezasentrada">Piezas </label>
                 <input id ="piezasentrada" type='number' name="piezasentrada" class="form-control"></input>
             </div>
 
-            <div class="form-group">
-                <label for = "piezascalidad">Piezas Calidad </label>
-                <input id ="piezascalidad" type='number' name="piezascalidad" class="form-control"></input>
-            </div>
-
-            <div class="form-group">
-                <label for = "piezasrechazoproc">Rechazo </label>
-                <input id ="piezasrechazoproc" type='number' name="piezasrechazoproc" class="form-control"></input>
-            </div>
             <button type = "submit" class="btn"> Ingresar</button>
 
 

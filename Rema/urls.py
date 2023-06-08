@@ -11,5 +11,6 @@ urlpatterns = [
     path("Moldurera",views.moldureraInfo),
     path("SalidaAserradero",views.aserraderoInfo),
     path("EntradaAserradero",views.entradaAserraderoInfo),
-    path("nuevocodigo",views.nuevoCodigo)
+    path("nuevocodigo",views.nuevoCodigo),
+    path("Reproceso", views.reprocesoInfo)
 ]
