@@ -17,8 +17,30 @@
         max-width: 90%;
         
     }
+    .leyenda{
+        margin-top: 30px;
+        margin-bottom: 180px;
+        margin-right: 50px;
+        width: 35%;
+        max-width: 70%;
+        background: white;
+        border-radius: 4px;
+        box-shadow: 0 8px 16px rgba(0,0,0,.3);
+    }
+    .leyenda h3{
+        text-align: center;
+    }
+    .leyenda li{
+        padding-left: 20px;
+    }
+    .leyenda p{
+        padding-left: 10px;
+    }
+    .leyenda ul{
+        padding-left: 20px;
+    }
     .container form{
-        width: 100%;
+        width: 90%;
         height: 800px;
         padding: 20px;
         background: white;
@@ -120,5 +142,37 @@
         <a href="/Rema/">
             <button class="btn" >Volver a Rema</button>
         </a>
+    </div>
+    <div class="leyenda">
+        <h3>Ayuda para ingreso</h3>
+        <h3>de nuevo código</h3>
+        <br>
+        <p><strong> Nombre del código:</strong> se utilizará para identificar en cada centro trabajo, para mejor legibilidad utilizar la siguiente nomenclatura:
+        </p>
+        <li>ASE - Aserradero (ASEL/ASEM de ser lateral o medula)</li>
+        <li>SEC - Secado (SECL/SECM lateral o medula)</li>
+        <li>CEP - Cepillado (CEPL/CEPM)</li>
+        <li>TRZ - Trozado (CEPL/CEPM)</li>
+        <li>FNG - Finger</li>
+        <li>MOL - Moldurera</li>
+        <p><strong>
+            Algunos ejemplos:
+        </strong>
+        </p>
+        <ul>CEPL217224 = Cepillado Lateral 21x72x2400</ul>
+        <ul>MOL-CJ-13 = CJ-13</ul>
+        <ul>FNG-MDP-341462200 = Marco de puerta finger 34x146x2200 (Si es reproceso modificar FNG por RPR de reproceso)</ul>
+        <ul></ul>
+        <br>
+        <p><strong> Centro de trabajo:</strong> Seleccionar a que CT pertenece el código</p>
+        <br>
+
+        <p>Las medidas <strong> espesor, ancho, largo</strong> son para registrar y calcular los volumenes (Ej: CEPL217224 espesor: 21 ancho: 72 largo: 2.4)</p>
+        <br>
+
+        <p><strong> Diametro:</strong> Sólo si aplica (en caso que no, dejar en 0)</p>
+        <br>
+
+        <p><strong> Cantidad por paquete:</strong> Cantidad de paquete según escruadría</p>
     </div>
 </body>       

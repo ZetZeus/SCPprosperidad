@@ -70,7 +70,9 @@ def nuevoCodigo(request):
                 if (i.nombre_centrotrabajo == instance.nombre_centrotrabajo):
                     instance.id_centrotrabajo = i.id_centrotrabajo
      
-            
+            connection.cursor().execute("""
+            UPDATE "Maderas" SET "reproceso" = 0 WHERE "codigo_madera" = %s
+            """,(instance.codigo_madera))
 
                 
             instance.save()
@@ -143,9 +145,7 @@ def aserraderoInfo(request):
             connection.cursor().execute("""
             UPDATE "Maderas" SET "piezas" = "piezas" + %s WHERE "codigo_madera" = %s
             """,(instance.piezassalida, instance.codigo_madera))
-            connection.cursor().execute("""
-            UPDATE "Maderas" SET "reproceso" = 0 WHERE "codigo_madera" = %s
-            """,(instance.codigo_madera))  
+             
             actualizarMadera()
         else:
             messages.success(request,('Error al ingresar'))
@@ -216,9 +216,7 @@ def secadoInfo(request):
                 """,(instance.piezasentrada,instance.codigo_madera_ant))
                 
                 
-                connection.cursor().execute("""
-                    UPDATE "Maderas" SET "reproceso" = 0 WHERE "codigo_madera" = %s"""
-                                   ,(instance.codigo_madera,)) 
+                
                 actualizarMadera() 
         else:
             messages.success(request, ('Error al ingresar'))
@@ -307,9 +305,7 @@ def cepilladoInfo(request):
             connection.cursor().execute("""
             UPDATE "Maderas" SET "piezas" = "piezas" - %s WHERE "codigo_madera" = %s
             """,(instance.piezasentrada,instance.codigo_madera_ant))
-            connection.cursor().execute("""
-            UPDATE "Maderas" SET "reproceso" = 0 WHERE "codigo_madera" = %s
-            """,(instance.codigo_madera,)) 
+            
 
             actualizarMadera() 
         else:
@@ -384,9 +380,7 @@ def trozadoInfo(request):
             UPDATE "Maderas" SET "piezas" = "piezas" - %s WHERE "codigo_madera" = %s
             """,(instance.piezasentrada,instance.codigo_madera_ant))
             
-            connection.cursor().execute("""
-            UPDATE "Maderas" SET "reproceso" = 0 WHERE "codigo_madera" = %s
-            """,(instance.codigo_madera,))
+            
 
             actualizarMadera() 
         else:
@@ -537,9 +531,7 @@ def moldureraInfo(request):
             connection.cursor().execute("""
             UPDATE "Maderas" SET "piezas" = "piezas" - %s WHERE "codigo_madera" = %s
             """,(instance.piezasentrada,instance.codigo_madera_ant))
-            connection.cursor().execute("""
-                UPDATE "Maderas" SET "reproceso" = 0 WHERE "codigo_madera" = %s
-                """,(instance.codigo_madera,)) 
+            
 
             actualizarMadera()   
         else:

@@ -1,44 +1,45 @@
 <head>
     <title>SCP Prosperidad</title>
-    <link rel = "icon" href = 
-"https://prosperidad.cl/wp-content/uploads/2018/06/Prosperidad_Maqueta_Web-1.jpg" 
-        type = "image/x-icon">
-<style>
-        *{
-            margin-top: 10px;
-            margin-left: 100px;
-            margin-bottom: auto;
+    <link rel="icon" href="https://prosperidad.cl/wp-content/uploads/2018/06/Prosperidad_Maqueta_Web-1.jpg" type="image/x-icon">
+    <style>
+        * {
+            margin: 10px;
             padding: 0;
             box-sizing: border-box;
         }
-        body{
-            min-height: 100¿vh;
+
+        body {
+            min-height: 100vh;
             background-color: #eaeaea;
             display: flex;
+            justify-content: center;
+            align-items: center;
             font-family: 'Poppins';
         }
-        
-        .container{
+
+        .container {
+            max-width: 600px;
             width: 100%;
-            height: 100%;
             padding: 20px;
             background: white;
             border-radius: 4px;
-            box-shadow: 0 8px 16px rgba(0,0,0,.3);
-        }
-        .container h1{
+            box-shadow: 0 8px 16px rgba(0, 0, 0, .3);
             text-align: center;
         }
-        .elements{
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            grid-auto-rows: 20px;
-            margin-left: auto;
+
+        .container h1 {
+            margin-bottom: 20px;
         }
-        .btn{
-            margin-left: 5%;
-            width: 150px;
+
+        .elements {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .btn {
+            width: 100%;
             height: 34px;
             border: none;
             outline: none;
@@ -49,32 +50,33 @@
             transition: .3s;
             color: white;
         }
-        
-    .btn:hover{
-        opacity: .7;
-        color: #222222;
-    }
-    img{
-        margin-left: 37%;
-    }
-</style>
+
+        .btn:hover {
+            opacity: .7;
+            color: #222222;
+        }
+
+        img {
+            display: block;
+            margin: 0 auto;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
 <body>
-    
-
-    <div class="wrapper">    
+    <div class="wrapper">
         <div class="container">
-            <h1>Homepage</h1>
-
+            <h1>Homepage SCP</h1>
+            <img src="https://puropellet.cl/wp-content/uploads/2014/12/logo-maderas-prosperidad.png" alt="logo-maderas-prosperidad">
+            <h3>Elegir un área para empezar a ingresar</h3>
             <div class="elements">
                 {% for item in todo %}
-                    <button class="btn" onclick="location.href = '/{{item.nombre_area}}/' ">
-                        {{item.nombre_area}}
-                    </button>
-
+                <button class="btn" onclick="location.href = '/{{item.nombre_area}}/'">
+                    {{item.nombre_area}}
+                </button>
                 {% endfor %}
             </div>
         </div>
     </div>
-
-</body>    
-</head>
+</body>
