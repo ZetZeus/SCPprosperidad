@@ -106,7 +106,7 @@
 
         <div class="form-group">
             <label for="codigo_madera_ant">Codigo Madera Anterior</label>
-            <select id="codigo_madera_ant" class="form-control">
+            <select id="codigo_madera_ant" name="codigo_madera_ant" class="form-control">
                 {% for item in inf_maderas %}
                     {% if item.id_centrotrabajo == 3 %}
                         <option value={{item.codigo_madera}}> {{item.codigo_madera}} </option>

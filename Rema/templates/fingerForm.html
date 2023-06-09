@@ -100,9 +100,9 @@
                     {% endfor %}
                 </select>
             </div>
-            <div class="form-group>
-                <label for="codigoMaderaAnt">Codigo Madera Anterior</label>
-                <select id="codigoMaderaAnt" class="form-control">
+            <div class="form-group">
+                <label for="codigo_madera_ant">Codigo Madera Anterior</label>
+                <select id="codigo_madera_ant" name="codigo_madera_ant" class="form-control">
                     {% for item in inf_maderas %}
                         {% if item.id_centrotrabajo == 5 %}
                             <option value={{item.codigo_madera}}> {{item.codigo_madera}} </option>
