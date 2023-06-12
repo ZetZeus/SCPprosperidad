@@ -1,6 +1,21 @@
 from django import forms
 from .models import Area, Centrotrabajo,Maquina,Maderas,Proceso
 
+class entradaAserradero(forms.ModelForm):
+    class Meta:
+        model = Proceso
+        fields = ['id_proceso',
+                  'id_madera',
+                  'id_area',
+                  'id_centrotrabajo',
+                  'id_maquina',
+                  'fecha',
+                  'nombre_maquina',
+                  'codigo_madera',
+                  'piezassalida',
+                  'volumensalida',
+                  'volumentotal']
+
 class aserradero(forms.ModelForm):
     class Meta:
         model = Proceso

@@ -113,43 +113,25 @@
                 <label for="fecha">Fecha</label>
                 <input type="date" name="fecha" class="form-control">
             </div>
-            <div class="form-group">
-                <label for="nombre_maquina">Elegir Maquina</label>
-                <select id="nombre_maquina" name="nombre_maquina" class="form-control">
-                    {% for item in inf_maquinas %}
-                    {% if item.id_centrotrabajo == 1 %}
-                    <option value="{{ item.nombremaquina }}">{{ item.nombremaquina }}</option>
-                    {% endif %}
-                    {% endfor %}
-                </select>
-            </div>
+            
         </div>
         <div class="form-row">
             <div class="form-group">
                 <label for="codigo_madera">Codigo Madera</label>
                 <select id="codigo_madera" name="codigo_madera" class="form-control">
-                    {% for item in inf_maderas %}
-                    {% if item.id_centrotrabajo == 1 %}
-                    <option value="{{ item.codigo_madera }}">{{ item.codigo_madera }}</option>
-                    {% endif %}
+                    {% for item in maderas %}
+                        {% if item.id_centrotrabajo == 1 %}
+                            <option value="{{ item.codigo_madera }}">{{ item.codigo_madera }}</option>
+                        {% endif %}
                     {% endfor %}
                 </select>
             </div>
             <div class="form-group">
-                <label for="diametro">Diametro</label>
-                <input id="diametro" type="number" name="diametro" class="form-control">
+                <label for="piezassalida">Piezas</label>
+                <input id="piezassalida" type="number" name="piezassalida" class="form-control">
             </div>
         </div>
-        <div class="form-row">
-            <div class="form-group">
-                <label for="largoASE">Largo</label>
-                <input id="largoASE" type="number" name="largoASE" class="form-control">
-            </div>
-            <div class="form-group">
-                <label for="piezasentrada">Piezas</label>
-                <input id="piezasentrada" type="number" name="piezasentrada" class="form-control">
-            </div>
-        </div>
+        
         <div class="center-btn">
             <button type="submit" class="btn">Ingresar</button>
         </div>
