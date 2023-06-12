@@ -1,10 +1,10 @@
 from django.shortcuts import render
 from django.db.models import Max
 from django.contrib import messages
+from django.http import HttpResponse
 from django.db import connection
 
 # Create your views here.
-from django.http import HttpResponse
 from .models import Centrotrabajo,Area, Maquina, Maderas, Proceso
 from .forms import entradaAserradero,aserradero,secado,cepillado,trozado,finger,moldurera,reproceso, nuevaMadera
 
@@ -154,10 +154,10 @@ def aserraderoInfo(request):
                             'id_centrotrabajo':'0',
                             'id_area':'0',
                             'id_maquina': '0',
-                            'volumenentrada': '0',
+                            'volumensalida': '0',
                             'volumentotal':'0'})
         nuevo_form = aserradero(update_data)
-
+        print(nuevo_form)
         if nuevo_form.is_valid():
             instance = nuevo_form.save(commit=False)
             instance.id_proceso = p+1
