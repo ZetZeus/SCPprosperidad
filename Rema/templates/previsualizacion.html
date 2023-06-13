@@ -1,0 +1,25 @@
+<body>
+    <div class="container">
+        <h1>Previsualización</h1>
+        
+        <div class="form-data">
+            <p>Fecha: {{ form_data.fecha }}</p>
+            <p>Nombre de la máquina: {{ form_data.nombre_maquina }}</p>
+            <p>Código de madera anterior: {{ form_data.codigo_madera_ant }}</p>
+            <p>Código de madera: {{ form_data.codigo_madera }}</p>
+            <p>Piezas de salida: {{ form_data.piezassalida }}</p>
+            <p>Volumen Salida: {{ volumen }}</p>
+        </div>
+        
+        <div class="btn-container">
+            <a href="/Rema/SalidaAserradero">
+                <button class="btn">Volver al formulario</button>
+            </a>
+            <form method="post" action="/Rema/SalidaAserradero">
+                {% csrf_token %}
+                <input type="hidden" name="form_data" value="{{ form_data|json_script }}">
+                <button type="submit" class="btn">Ingresar</button>
+            </form>
+        </div>
+    </div>
+</body>

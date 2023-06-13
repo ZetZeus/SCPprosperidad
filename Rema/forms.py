@@ -1,7 +1,7 @@
 from django import forms
 from .models import Area, Centrotrabajo,Maquina,Maderas,Proceso
 
-class entradaAserradero(forms.ModelForm):
+class entradaAserraderoForm(forms.ModelForm):
     class Meta:
         model = Proceso
         fields = ['id_proceso',
@@ -16,7 +16,7 @@ class entradaAserradero(forms.ModelForm):
                   'volumensalida',
                   'volumentotal']
 
-class aserradero(forms.ModelForm):
+class aserraderoForm(forms.ModelForm):
     class Meta:
         model = Proceso
         fields = ['id_proceso',
@@ -31,7 +31,7 @@ class aserradero(forms.ModelForm):
                   'piezassalida',
                   'volumensalida',
                   'volumentotal']
-class secado(forms.ModelForm):
+class secadoForm(forms.ModelForm):
     class Meta:
         model = Proceso
         fields = ['id_proceso',
@@ -48,7 +48,7 @@ class secado(forms.ModelForm):
                   'volumenentrada',
                   'volumensalida',
                   'volumentotal']
-class cepillado(forms.ModelForm):
+class cepilladoForm(forms.ModelForm):
 
     class Meta:
         model = Proceso
@@ -73,7 +73,7 @@ class cepillado(forms.ModelForm):
                   'volumenrechazoproc',
                   'volumentotal']
         
-class trozado(forms.ModelForm):
+class trozadoForm(forms.ModelForm):
     class Meta:
         model = Proceso
         fields = ['id_proceso',
@@ -90,7 +90,7 @@ class trozado(forms.ModelForm):
                   'volumenentrada',
                   'volumensalida',
                   'volumentotal']
-class finger(forms.ModelForm):
+class fingerForm(forms.ModelForm):
     class Meta:
         model = Proceso
         fields = ['id_proceso',
@@ -110,7 +110,7 @@ class finger(forms.ModelForm):
                   'volumenreproceso',
                   'volumentotal']
 
-class moldurera(forms.ModelForm):
+class moldureraForm(forms.ModelForm):
     class Meta:
         model = Proceso
         fields = ['id_proceso',
@@ -129,7 +129,7 @@ class moldurera(forms.ModelForm):
                   'piezasrechazoproc',
                   'volumenrechazoproc',
                   'volumentotal']
-class reproceso(forms.ModelForm):
+class reprocesoForm(forms.ModelForm):
     class Meta:
         model = Proceso
         fields = ['id_proceso',

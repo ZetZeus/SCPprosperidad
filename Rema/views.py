@@ -1,12 +1,17 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.db.models import Max
 from django.contrib import messages
 from django.http import HttpResponse
 from django.db import connection
+from formtools.preview import FormPreview
+from formtools.wizard.views import SessionWizardView
+from django.views.generic.edit import FormView
+
+
 
 # Create your views here.
 from .models import Centrotrabajo,Area, Maquina, Maderas, Proceso
-from .forms import entradaAserradero,aserradero,secado,cepillado,trozado,finger,moldurera,reproceso, nuevaMadera
+from .forms import entradaAserraderoForm,aserraderoForm,secadoForm,cepilladoForm,trozadoForm,fingerForm,moldureraForm,reprocesoForm, nuevaMadera
 
 
 
@@ -87,14 +92,17 @@ def nuevoCodigo(request):
     else:
         return render(request,'nuevoCodigoForm.html', {'inf_madera': info_maderas, 'inf_ct':info_ct})
     
-    
+def calcularVolumen(codigo_de_madera, piezas_recibidas):
+    madera = Maderas.objects.get(codigo_madera = codigo_de_madera)
+    volumen = (madera.espesor * madera.ancho * madera.largo * piezas_recibidas) / 1000000    
+    return volumen
 
 def entradaAserraderoInfo(request):
     info_maquinas = Maquina.objects.all
     info_maderas = Maderas.objects.all
     p = Proceso.objects.aggregate(Max('id_proceso')).get('id_proceso__max')
     if request.method == "POST":
-        form = entradaAserradero(request.POST or None)
+        form = entradaAserraderoForm(request.POST or None)
         update_data = request.POST.copy()
         idProceso = p+1
         update_data.update({'idproceso': idProceso,
@@ -104,7 +112,7 @@ def entradaAserraderoInfo(request):
                             'id_maquina': '0',
                             'volumensalida':'0',
                             'volumentotal':'0'})
-        nuevo_form = entradaAserradero(update_data)
+        nuevo_form = entradaAserraderoForm(update_data)
         print(nuevo_form)
         if nuevo_form.is_valid():
             instance = nuevo_form.save(commit=False)
@@ -146,7 +154,7 @@ def aserraderoInfo(request):
     info_maderas = Maderas.objects.all
     p = Proceso.objects.aggregate(Max('id_proceso')).get('id_proceso__max')
     if request.method == "POST":
-        form = aserradero(request.POST or None)
+        form = aserraderoForm(request.POST or None)
         update_data = request.POST.copy()
         idProceso = p+1
         update_data.update({'id_proceso': idProceso,
@@ -156,8 +164,7 @@ def aserraderoInfo(request):
                             'id_maquina': '0',
                             'volumensalida': '0',
                             'volumentotal':'0'})
-        nuevo_form = aserradero(update_data)
-        print(nuevo_form)
+        nuevo_form = aserraderoForm(update_data)
         if nuevo_form.is_valid():
             instance = nuevo_form.save(commit=False)
             instance.id_proceso = p+1
@@ -170,11 +177,9 @@ def aserraderoInfo(request):
             ):
                 if (i.codigo_madera == instance.codigo_madera):
                     instance.id_madera = i.id_madera
-                
-                if (instance.piezasentrada != None):
-                    instance.volumenentrada = ((i.espesor * i.ancho * i.largo) * instance.piezasentrada) / 1000000
-                
-                instance.volumentotal = instance.volumenentrada
+            volumen = calcularVolumen(instance.codigo_madera,instance.piezassalida)
+            instance.volumensalida = volumen
+            instance.volumentotal = volumen
 
             instance.id_area = 1
             instance.id_centrotrabajo = 2
@@ -204,12 +209,56 @@ def aserraderoInfo(request):
     else:
         return render(request,'salidaAseForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
 
+class AserraderoFormView(FormView):
+    template_name = 'salidaAseForm.html'
+    form_class = aserraderoForm
+    success_url = '/Rema/SalidaAserradero'
+
+    def form_valid(self, form):
+        form_data = form.cleaned_data
+
+        if 'ingresar' in self.request.POST:
+
+            form.save()
+        if 'previsualizar' in self.request.POST:
+            return redirect('previsualizacion')
+        return super().form_valid(form)
+def previsualizacion(request):
+    if request.method == 'POST':
+        print('Si entra al request post')
+        form = aserraderoForm(request.POST)
+        update_data = request.POST.copy()
+        p = Proceso.objects.aggregate(Max('id_proceso')).get('id_proceso__max')
+        idProceso = p+1
+        update_data.update({'id_proceso': idProceso,
+                            'id_madera':'0',
+                            'id_centrotrabajo':'0',
+                            'id_area':'0',
+                            'id_maquina': '0',
+                            'volumensalida': '0',
+                            'volumentotal':'0'})
+        nuevo_formVis = aserraderoForm(update_data)
+        if nuevo_formVis.is_valid():
+            form_data = nuevo_formVis.cleaned_data
+            piezas_salida = float(request.POST.get('piezassalida'))
+            codigo_madera = request.POST.get('codigo_madera')
+
+            volumen = calcularVolumen(codigo_madera,piezas_salida)
+
+
+            return render(request, 'previsualizacion.html', {'form_data': form_data, 'volumen': volumen})
+    else:
+        form = aserraderoForm()
+    
+    return render(request, 'previsualizacion.html', {'form': form}) 
+
+
 def secadoInfo(request):
     info_maquinas = Maquina.objects.all
     info_maderas = Maderas.objects.all
     p = Proceso.objects.aggregate(Max('id_proceso')).get('id_proceso__max')
     if request.method == "POST":
-        form = secado(request.POST or None)
+        form = secadoForm(request.POST or None)
         update_data = request.POST.copy()
         idProceso = p+1
         update_data.update({'id_proceso': idProceso,
@@ -220,7 +269,7 @@ def secadoInfo(request):
                             'volumenentrada': '0',
                             'volumensalida': '0',
                             'volumentotal':'0',})
-        nuevo_form = secado(update_data)
+        nuevo_form = secadoForm(update_data)
 
         if nuevo_form.is_valid():
             instance = nuevo_form.save(commit=False)
@@ -286,7 +335,7 @@ def cepilladoInfo(request):
     info_maderas = Maderas.objects.all
     p = Proceso.objects.aggregate(Max('id_proceso')).get('id_proceso__max')
     if request.method == "POST":
-        form = cepillado(request.POST or None)
+        form = cepilladoForm(request.POST or None)
         update_data = request.POST.copy()
 
         idProceso = p+1
@@ -302,7 +351,7 @@ def cepilladoInfo(request):
                             'volumenrechazoproc': '0',
                             'volumentotal':'0',
                             })
-        nuevo_form = cepillado(update_data)
+        nuevo_form = cepilladoForm(update_data)
         
         if nuevo_form.is_valid():
             instance = nuevo_form.save(commit=False)
@@ -372,7 +421,7 @@ def trozadoInfo(request):
     info_maderas = Maderas.objects.all
     p = Proceso.objects.aggregate(Max('id_proceso')).get('id_proceso__max')
     if request.method == "POST":
-        form = trozado(request.POST or None)
+        form = trozadoForm(request.POST or None)
         update_data = request.POST.copy()
         idProceso = p+1
         update_data.update({'id_proceso': idProceso,
@@ -383,7 +432,7 @@ def trozadoInfo(request):
                             'volumenentrada': '0',
                             'volumensalida': '0',
                             'volumentotal':'0',})
-        nuevo_form = trozado(update_data)
+        nuevo_form = trozadoForm(update_data)
         if nuevo_form.is_valid():
             instance = nuevo_form.save(commit=False)
             instance.id_proceso = p+1
@@ -447,7 +496,7 @@ def fingerInfo(request):
     info_maderas = Maderas.objects.all
     p = Proceso.objects.aggregate(Max('id_proceso')).get('id_proceso__max')
     if request.method == "POST":
-        form = finger(request.POST or None)
+        form = fingerForm(request.POST or None)
         update_data = request.POST.copy()
         idProceso = p+1
         update_data.update({'id_proceso': idProceso,
@@ -460,7 +509,7 @@ def fingerInfo(request):
                             'volumentotal':'0',
                             'volumenreproceso': '0',
                             })
-        nuevo_form = finger(update_data)
+        nuevo_form = fingerForm(update_data)
         if nuevo_form.is_valid():
             instance = nuevo_form.save(commit=False)
             instance.id_proceso = p+1
@@ -523,7 +572,7 @@ def moldureraInfo(request):
     info_maderas = Maderas.objects.all
     p = Proceso.objects.aggregate(Max('id_proceso')).get('id_proceso__max')
     if request.method == "POST":
-        form = moldurera(request.POST or None)
+        form = moldureraForm(request.POST or None)
         update_data = request.POST.copy()
         idProceso = p+1
         update_data.update({'id_proceso': idProceso,
@@ -536,7 +585,7 @@ def moldureraInfo(request):
                             'volumentotal':'0',
                             'volumenrechazoproc': '0',
                             })
-        nuevo_form = moldurera(update_data)
+        nuevo_form = moldureraForm(update_data)
         if nuevo_form.is_valid():
             instance = nuevo_form.save(commit=False)
             instance.id_proceso = p+1
@@ -598,7 +647,7 @@ def reprocesoInfo(request):
     info_maderas = Maderas.objects.all
     p = Proceso.objects.aggregate(Max('id_proceso')).get('id_proceso__max')
     if request.method == "POST":
-        form = reproceso(request.POST or None)
+        form = reprocesoForm(request.POST or None)
         update_data = request.POST.copy()
         idProceso = p+1
         update_data.update({'id_proceso': idProceso,
@@ -608,7 +657,7 @@ def reprocesoInfo(request):
                             'id_maquina': '0',
                             'volumensalida':'0',
                             'volumentotal':'0'})
-        nuevo_form = reproceso(update_data)
+        nuevo_form = reprocesoForm(update_data)
         if nuevo_form.is_valid():
             instance = nuevo_form.save(commit=False)
             instance.id_proceso = p+1
