@@ -149,10 +149,73 @@ def entradaAserraderoInfo(request):
 
         return render(request,'entradaAseForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
 
+class AserraderoFormView(FormView):
+    template_name = 'salidaAseForm.html'
+    form_class = aserraderoForm
+    success_url = '/Rema/SalidaAserradero'
+
+    def form_valid(self, form):
+        form_data = form.cleaned_data
+
+        if 'ingresar' in self.request.POST:
+
+            form.save()
+        if 'previsualizar' in self.request.POST:
+            return redirect('previsualizacion')
+        return super().form_valid(form)
+def previsualizacion(request):
+    info_maquinas = Maquina.objects.all
+    info_maderas = Maderas.objects.all
+    if request.method == 'POST':
+        form = aserraderoForm(request.POST)
+        update_data = request.POST.copy()
+        p = Proceso.objects.aggregate(Max('id_proceso')).get('id_proceso__max')
+        idProceso = p+1
+        update_data.update({'id_proceso': idProceso,
+                            'id_madera':'0',
+                            'id_centrotrabajo':'0',
+                            'id_area':'0',
+                            'id_maquina': '0',
+                            'volumensalida': '0',
+                            'volumentotal':'0'})
+        nuevo_formVis = aserraderoForm(update_data)
+        if nuevo_formVis.is_valid():
+            form_data = nuevo_formVis.cleaned_data
+            piezas_salida = float(request.POST.get('piezassalida'))
+            codigo_madera = request.POST.get('codigo_madera')
+            id_madera = None
+            id_maquina = None
+            for i in Maderas.objects.raw("""SELECT "id_madera", "codigo_madera" FROM "Maderas" WHERE "id_centroTrabajo" = 2"""):
+                if i.codigo_madera == codigo_madera:
+                    id_madera = i.id_madera
+                    break
+
+            for i in Maquina.objects.raw("""SELECT "id_maquina", "nombreMaquina" FROM "Maquina" WHERE "centroTrabajoMaquina" = 'Aserradero'"""):
+                if i.nombremaquina == request.POST.get('nombre_maquina'):
+                    id_maquina = i.id_maquina
+                    break
+            form_data['id_madera'] = id_madera
+            form_data['id_maquina'] = id_maquina    
+            form_data['id_area'] = 1
+            form_data['id_centrotrabajo'] = 2    
+            volumen = calcularVolumen(codigo_madera,piezas_salida)
+            form_data['volumensalida'] = volumen
+            form_data['volumentotal'] = volumen
+
+
+            return render(request, 'previsualizacion.html', {'form_data': form_data})
+    else:
+        form = aserraderoForm()
+    
+    return redirect('aserraderoInfo') 
+
+
+
 def aserraderoInfo(request):
     info_maquinas = Maquina.objects.all
     info_maderas = Maderas.objects.all
     p = Proceso.objects.aggregate(Max('id_proceso')).get('id_proceso__max')
+    update_data = {}
     if request.method == "POST":
         form = aserraderoForm(request.POST or None)
         update_data = request.POST.copy()
@@ -207,50 +270,8 @@ def aserraderoInfo(request):
         return render(request,'salidaAseForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
     
     else:
-        return render(request,'salidaAseForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
-
-class AserraderoFormView(FormView):
-    template_name = 'salidaAseForm.html'
-    form_class = aserraderoForm
-    success_url = '/Rema/SalidaAserradero'
-
-    def form_valid(self, form):
-        form_data = form.cleaned_data
-
-        if 'ingresar' in self.request.POST:
-
-            form.save()
-        if 'previsualizar' in self.request.POST:
-            return redirect('previsualizacion')
-        return super().form_valid(form)
-def previsualizacion(request):
-    if request.method == 'POST':
-        print('Si entra al request post')
-        form = aserraderoForm(request.POST)
-        update_data = request.POST.copy()
-        p = Proceso.objects.aggregate(Max('id_proceso')).get('id_proceso__max')
-        idProceso = p+1
-        update_data.update({'id_proceso': idProceso,
-                            'id_madera':'0',
-                            'id_centrotrabajo':'0',
-                            'id_area':'0',
-                            'id_maquina': '0',
-                            'volumensalida': '0',
-                            'volumentotal':'0'})
-        nuevo_formVis = aserraderoForm(update_data)
-        if nuevo_formVis.is_valid():
-            form_data = nuevo_formVis.cleaned_data
-            piezas_salida = float(request.POST.get('piezassalida'))
-            codigo_madera = request.POST.get('codigo_madera')
-
-            volumen = calcularVolumen(codigo_madera,piezas_salida)
-
-
-            return render(request, 'previsualizacion.html', {'form_data': form_data, 'volumen': volumen})
-    else:
-        form = aserraderoForm()
-    
-    return render(request, 'previsualizacion.html', {'form': form}) 
+        formInicial = aserraderoForm(initial=update_data)
+        return render(request,'salidaAseForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas, 'form_data': formInicial})
 
 
 def secadoInfo(request):
