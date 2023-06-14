@@ -351,6 +351,81 @@ def secadoInfo(request):
         return render(request,'secadoForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
 
 
+class CepilladoFormView(FormView):
+    template_name = 'cepilladoForm.html'
+    form_class = cepilladoForm
+    success_url = '/Rema/Cepillado'
+
+    def form_valid(self, form):
+        form_data = form.cleaned_data
+
+        if 'ingresar' in self.request.POST:
+            form.save()
+        if 'previsualizar' in self.request.POST:
+            return redirect('previsualizacionCep')
+        return super().form_valid(form)
+    
+def previsualizacionCep(request):
+    info_maquinas = Maquina.objects.all
+    info_maderas = Maderas.objects.all
+    if request.method == 'POST':
+        form = cepilladoForm(request.POST)
+        update_data = request.POST.copy()
+        p = Proceso.objects.aggregate(Max('id_proceso')).get('id_proceso__max')
+        idProceso = p+1
+        update_data.update({'id_proceso': idProceso,
+                            'id_madera':'0',
+                            'id_centrotrabajo':'0',
+                            'id_area':'0',
+                            'id_maquina': '0',
+                            'volumenentrada': '0',
+                            'volumensalida': '0',
+                            'volumenrechazohum': '0',
+                            'volumenrechazodef': '0',
+                            'volumenrechazoproc': '0',
+                            'volumentotal':'0',})
+        nuevo_formVis = cepilladoForm(update_data)
+        if nuevo_formVis.is_valid():
+            form_data = nuevo_formVis.cleaned_data
+            piezas_entrada = float(request.POST.get('piezasentrada'))
+            piezas_salida = float(request.POST.get('piezassalida'))
+            piezas_rechazohum = float(request.POST.get('piezasrechazohum'))
+            piezas_rechazodef = float(request.POST.get('piezasrechazodef'))
+            piezas_rechazoproc = float(request.POST.get('piezasrechazoproc'))
+
+            codigo_madera = request.POST.get('codigo_madera')
+            id_madera = None
+            id_maquina = None
+            for i in Maderas.objects.raw("""SELECT "id_madera", "codigo_madera" FROM "Maderas" WHERE "id_centroTrabajo" = 4"""):
+                if i.codigo_madera == codigo_madera:
+                    id_madera = i.id_madera
+                    break
+            for i in Maquina.objects.raw("""SELECT "id_maquina", "nombreMaquina" FROM "Maquina" WHERE "centroTrabajoMaquina" = 'Cepillado'"""):
+                if i.nombremaquina == request.POST.get('nombre_maquina'):
+                    id_maquina = i .id_maquina
+                    break
+            form_data['id_madera'] = id_madera
+            form_data['id_maquina'] = id_maquina    
+            form_data['id_area'] = 1
+            form_data['id_centrotrabajo'] = 4
+            volumenEntrada = calcularVolumen(codigo_madera,piezas_entrada)
+            volumenSalida = calcularVolumen(codigo_madera,piezas_salida)
+            volumenRechazoHum = calcularVolumen(codigo_madera,piezas_rechazohum)
+            volumenRechazoDef = calcularVolumen(codigo_madera,piezas_rechazodef)
+            volumenRechazoProc = calcularVolumen(codigo_madera,piezas_rechazoproc)
+            form_data['volumenentrada'] = volumenEntrada
+            form_data['volumensalida'] = volumenSalida
+            form_data['volumenrechazohum'] = volumenRechazoHum
+            form_data['volumenrechazodef'] = volumenRechazoDef
+            form_data['volumenrechazoproc'] = volumenRechazoProc
+
+            return render(request,'previsualCep.html',{'form_data': form_data})
+    else:
+        form = cepilladoForm()
+    return redirect('cepilladoInfo')
+
+
+
 def cepilladoInfo(request):
     info_maquinas = Maquina.objects.all
     info_maderas = Maderas.objects.all

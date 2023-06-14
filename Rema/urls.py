@@ -14,5 +14,7 @@ urlpatterns = [
     path("nuevocodigo",views.nuevoCodigo),
     path("Reproceso", views.reprocesoInfo),
     path("SalidaAserradero/",views.AserraderoFormView.as_view(),name='salida_aserradero'),
-    path("SalidaAserradero/preview",views.previsualizacion,name='previsualizacion')
+    path("SalidaAserradero/preview",views.previsualizacion,name='previsualizacion'),
+    path("Cepillado/",views.CepilladoFormView.as_view(),name='cepillado'),
+    path("Cepillado/preview",views.previsualizacionCep,name='previsualCep')
 ]
