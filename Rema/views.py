@@ -287,9 +287,9 @@ class SecadoFormView(FormView):
         form_data = form.cleaned_data
         if 'ingresar' in self.request.POST:
             form.save()
-            if 'previsualizar' in self.request.POST:
-                return redirect('previsualizacionSec')
-            return super().form_valid(form)
+        if 'previsualizar' in self.request.POST:
+            return redirect('previsualizacionSec')
+        return super().form_valid(form)
 def previsualizacionSec(request):
     info_maquinas = Maquina.objects.all
     info_maderas = Maderas.objects.all
@@ -306,7 +306,7 @@ def previsualizacionSec(request):
                             'volumenentrada': '0',
                             'volumensalida': '0',
                             'volumentotal':'0'})
-        nuevo_formVis = aserraderoForm(update_data)
+        nuevo_formVis = secadoForm(update_data)
         if nuevo_formVis.is_valid():
             form_data = nuevo_formVis.cleaned_data
             piezas_entrada = float(request.POST.get('piezasentrada'))
@@ -584,6 +584,68 @@ def cepilladoInfo(request):
     else:
         return render(request,'cepilladoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
 
+class TrozadoFormView(FormView):
+    template_name = 'trozadoForm.html'
+    form_class = trozadoForm
+    success_url = '/Rema/Trozado'
+
+    def form_valid(self, form):
+        form_data = form.cleaned_data
+        if 'ingresar' in self.request.POST:
+            form.save()
+        if 'previsualizar' in self.request.POST:
+            return redirect('previsualizacionTRZ')
+        return super().form_valid(form)
+
+def previsualizacionTRZ(request):
+    info_maquinas = Maquina.objects.all
+    info_maderas = Maderas.objects.all
+    if request.method == 'POST':
+        form = trozadoForm(request.POST)
+        update_data = request.POST.copy()
+        p = Proceso.objects.aggregate(Max('id_proceso')).get('id_proceso__max')
+        idProceso = p+1
+        update_data.update({'id_proceso': idProceso,
+                            'id_madera':'0',
+                            'id_centrotrabajo':'0',
+                            'id_area':'0',
+                            'id_maquina': '0',
+                            'volumenentrada': '0',
+                            'volumensalida': '0',
+                            'volumentotal':'0'})
+        nuevo_formVis = trozadoForm(update_data)
+        if nuevo_formVis.is_valid():
+            form_data = nuevo_formVis.cleaned_data
+            piezas_entrada = float(request.POST.get('piezasentrada'))
+            piezas_salida = float(request.POST.get('piezassalida'))
+            codigo_madera = request.POST.get('codigo_madera')
+            id_madera = None
+            id_maquina = None
+            for i in Maderas.objects.raw("""SELECT "id_madera", "codigo_madera" FROM "Maderas" WHERE "id_centroTrabajo" = 5"""):
+                if i.codigo_madera == codigo_madera:
+                    id_madera = i.id_madera
+                    break
+
+            for i in Maquina.objects.raw("""SELECT "id_maquina", "nombreMaquina" FROM "Maquina" WHERE "centroTrabajoMaquina" = 'Trozado'"""):
+                if i.nombremaquina == request.POST.get('nombre_maquina'):
+                    id_maquina = i.id_maquina
+                    break
+            form_data['id_madera'] = id_madera
+            form_data['id_maquina'] = id_maquina    
+            form_data['id_area'] = 1
+            form_data['id_centrotrabajo'] = 5 
+            volumenEntrada = calcularVolumen(codigo_madera,piezas_entrada)
+            volumenSalida = calcularVolumen(codigo_madera,piezas_salida)
+            form_data['volumenentrada'] = volumenEntrada
+            form_data['volumensalida'] = volumenSalida
+            form['volumentotal'] = volumenSalida
+
+            return render(request,'previsualTRZ.html',{'form_data':form_data})
+    else:
+        form = trozadoForm()
+    return redirect('trozadoInfo')
+
+
 
 def trozadoInfo(request):
     info_maquinas = Maquina.objects.all
@@ -664,6 +726,72 @@ def trozadoInfo(request):
     else:
         return render(request,'trozadoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
 
+
+class FingerFormView(FormView):
+    template_name = 'fingerForm.html'
+    form_class = fingerForm
+    success_url = '/Rema/Finger'
+
+    def form_valid(self, form):
+        form_data = form.cleaned_data
+        if 'ingresar' in self.request.POST:
+            form.save()
+        if 'previsualizar' in self.request.POST:
+            return redirect('previsualizacionFNG')
+        return super().form_valid(form)
+    
+def previsualizacionFNG(request):
+    info_maquinas = Maquina.objects.all
+    info_maderas = Maderas.objects.all
+    if request.method == 'POST':
+        form = fingerForm(request.POST)
+        update_data = request.POST.copy()
+        p = Proceso.objects.aggregate(Max('id_proceso')).get('id_proceso__max')
+        idProceso = p+1
+        update_data.update({'id_proceso': idProceso,
+                            'id_madera':'0',
+                            'id_centrotrabajo':'0',
+                            'id_area':'0',
+                            'id_maquina': '0',
+                            'volumenentrada': '0',
+                            'volumencalidad': '0',
+                            'volumenreproceso':'0',
+                            'volumentotal':'0'})
+        nuevo_formVis = fingerForm(update_data)
+        if nuevo_formVis.is_valid():
+            form_data = nuevo_formVis.cleaned_data
+            piezas_entrada = float(request.POST.get('piezasentrada'))
+            piezas_calidad = float(request.POST.get('piezascalidad'))
+            piezas_reproceso = float(request.POST.get('piezasreproceso'))
+            codigo_madera = request.POST.get('codigo_madera')
+            id_madera = None
+            id_maquina = None
+            for i in Maderas.objects.raw("""SELECT "id_madera", "codigo_madera" FROM "Maderas" WHERE "id_centroTrabajo" = 6"""):
+                if i.codigo_madera == codigo_madera:
+                    id_madera = i.id_madera
+                    break
+
+            for i in Maquina.objects.raw("""SELECT "id_maquina", "nombreMaquina" FROM "Maquina" WHERE "centroTrabajoMaquina" = 'Trozado'"""):
+                if i.nombremaquina == request.POST.get('nombre_maquina'):
+                    id_maquina = i.id_maquina
+                    break
+            form_data['id_madera'] = id_madera
+            form_data['id_maquina'] = id_maquina    
+            form_data['id_area'] = 1
+            form_data['id_centrotrabajo'] = 3
+            volumenEntrada = calcularVolumen(codigo_madera,piezas_entrada)
+            volumenCalidad = calcularVolumen(codigo_madera,piezas_calidad)
+            volumenReproceso = calcularVolumen(codigo_madera, piezas_reproceso)
+            form_data['volumenentrada'] = volumenEntrada
+            form_data['volumencalidad'] = volumenCalidad
+            form_data['volumenreproceso'] = volumenReproceso
+            form_data['piezasentrada'] = piezas_entrada
+            form_data['volumentotal'] = volumenCalidad + volumenReproceso
+
+            return render(request,'previsualFNG.html',{'form_data':form_data})
+    else:
+        form = fingerForm()
+    return redirect('fingerInfo')              
 
 def fingerInfo(request):
     info_maquinas = Maquina.objects.all
@@ -746,6 +874,70 @@ def fingerInfo(request):
     else:
         return render(request,'fingerForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
 
+class MoldureraFormView(FormView):
+    template_name = 'moldureraForm.html'
+    form_class = moldureraForm
+    success_url = '/Rema/Moldurera'
+
+    def form_valid(self, form):
+        form_data = form.cleaned_data
+        if 'ingresar' in self.request.POST:
+            form.save()
+        if 'previsualizar' in self.request.POST:
+            return redirect('previsualizacionMOL')
+        return super().form_valid(form)
+
+def previsualizacionMOL(request):
+    info_maquinas = Maquina.objects.all
+    info_maderas = Maderas.objects.all
+    if request.method == 'POST':
+        form = moldureraForm(request.POST)
+        update_data = request.POST.copy()
+        p = Proceso.objects.aggregate(Max('id_proceso')).get('id_proceso__max')
+        idProceso = p+1
+        update_data.update({'id_proceso': idProceso,
+                            'id_madera':'0',
+                            'id_centrotrabajo':'0',
+                            'id_area':'0',
+                            'id_maquina': '0',
+                            'volumenentrada': '0',
+                            'volumencalidad': '0',
+                            'volumenrechazoproc':'0',
+                            'volumentotal':'0'})
+        nuevo_formVis = moldureraForm(update_data)
+        if nuevo_formVis.is_valid():
+            form_data = nuevo_formVis.cleaned_data
+            piezas_entrada = float(request.POST.get('piezasentrada'))
+            piezas_calidad = float(request.POST.get('piezascalidad'))
+            piezas_rechazo = float(request.POST.get('piezasrechazoproc'))
+            codigo_madera = request.POST.get('codigo_madera')
+            id_madera = None
+            id_maquina = None
+            for i in Maderas.objects.raw("""SELECT "id_madera", "codigo_madera" FROM "Maderas" WHERE "id_centroTrabajo" = 8"""):
+                if i.codigo_madera == codigo_madera:
+                    id_madera = i.id_madera
+                    break
+
+            for i in Maquina.objects.raw("""SELECT "id_maquina", "nombreMaquina" FROM "Maquina" WHERE "centroTrabajoMaquina" = 'Moldurera'"""):
+                if i.nombremaquina == request.POST.get('nombre_maquina'):
+                    id_maquina = i.id_maquina
+                    break
+            form_data['id_madera'] = id_madera
+            form_data['id_maquina'] = id_maquina    
+            form_data['id_area'] = 1
+            form_data['id_centrotrabajo'] = 5 
+            volumenEntrada = calcularVolumen(codigo_madera,piezas_entrada)
+            volumenCalidad = calcularVolumen(codigo_madera,piezas_calidad)
+            volumenRechazo = calcularVolumen(codigo_madera,piezas_rechazo)
+            form_data['volumenentrada'] = volumenEntrada
+            form_data['volumencalidad'] = volumenCalidad
+            form_data['volumenrechazoproc'] = volumenRechazo
+            form['volumentotal'] = volumenCalidad + volumenRechazo
+
+            return render(request,'previsualMOL.html',{'form_data':form_data})
+    else:
+        form = moldureraForm()
+    return redirect('moldureraInfo')
 
 def moldureraInfo(request):
     info_maquinas = Maquina.objects.all

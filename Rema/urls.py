@@ -18,5 +18,11 @@ urlpatterns = [
     path("Cepillado/",views.CepilladoFormView.as_view(),name='cepillado'),
     path("Cepillado/preview",views.previsualizacionCep,name='previsualCep'),
     path("Secado/",views.SecadoFormView.as_view(),name='secado'),
-    path("Secado/previsualizacionSec",views.previsualizacionSec,name='previsualSec')
+    path("Secado/previsualizacionSec",views.previsualizacionSec,name='previsualSec'),
+    path("Trozado/",views.TrozadoFormView.as_view(),name='trozado'),
+    path("Trozado/previsualizacionTRZ",views.previsualizacionTRZ,name='previsualTRZ'),
+    path("Finger/",views.FingerFormView.as_view(),name='finger'),
+    path("Finger/previsualizacionFNG",views.previsualizacionFNG,name='previsualFNG'),
+    path("Moldurera/",views.MoldureraFormView.as_view(),name='moldurera'),
+    path("Moldurera/previsualizacionMOL",views.previsualizacionFNG,name='previsualMOL')
 ]
