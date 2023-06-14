@@ -932,7 +932,7 @@ def previsualizacionMOL(request):
             form_data['volumenentrada'] = volumenEntrada
             form_data['volumencalidad'] = volumenCalidad
             form_data['volumenrechazoproc'] = volumenRechazo
-            form['volumentotal'] = volumenCalidad + volumenRechazo
+            form_data['volumentotal'] = volumenCalidad + volumenRechazo
 
             return render(request,'previsualMOL.html',{'form_data':form_data})
     else:

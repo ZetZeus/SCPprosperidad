@@ -24,5 +24,5 @@ urlpatterns = [
     path("Finger/",views.FingerFormView.as_view(),name='finger'),
     path("Finger/previsualizacionFNG",views.previsualizacionFNG,name='previsualFNG'),
     path("Moldurera/",views.MoldureraFormView.as_view(),name='moldurera'),
-    path("Moldurera/previsualizacionMOL",views.previsualizacionFNG,name='previsualMOL')
+    path("Moldurera/previsualizacionMOL",views.previsualizacionMOL,name='previsualMOL')
 ]
