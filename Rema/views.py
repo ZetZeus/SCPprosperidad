@@ -393,16 +393,14 @@ def secadoInfo(request):
                 connection.cursor().execute("""
                 UPDATE "Maderas" SET "piezas" = "piezas" - %s WHERE "codigo_madera" = %s
                 """,(instance.piezasentrada,instance.codigo_madera_ant))
+              
+                actualizarMadera()
+
                 
-                
-                
-                actualizarMadera() 
         else:
             messages.success(request, ('Error al ingresar'))
             return render(request,'secadoForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
-        
-
-        
+   
         return render(request,'secadoForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
     
 

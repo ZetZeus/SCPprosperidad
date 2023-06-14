@@ -136,9 +136,11 @@
                     <label for="codigo_madera_ant">Codigo Madera Anterior</label>
                     <select id="codigo_madera_ant" name="codigo_madera_ant" class="form-control">
                         {% for item in inf_maderas %}
-                        {% if item.id_centrotrabajo == 3 %}
-                        <option value="{{ item.codigo_madera }}">{{ item.codigo_madera }}</option>
-                        {% endif %}
+                            {% if item.id_centrotrabajo == 3 %}
+                                {% if item.piezas > 0 %}
+                                    <option value="{{ item.codigo_madera }}">{{ item.codigo_madera }}</option>
+                                {% endif %}
+                            {% endif %}
                         {% endfor %}
                     </select>
                 </div>
@@ -146,9 +148,9 @@
                     <label for="codigo_madera">Codigo Madera</label>
                     <select id="codigo_madera" name="codigo_madera" class="form-control">
                         {% for item in inf_maderas %}
-                        {% if item.id_centrotrabajo == 4 %}
-                        <option value="{{ item.codigo_madera }}">{{ item.codigo_madera }}</option>
-                        {% endif %}
+                            {% if item.id_centrotrabajo == 4 %}
+                                <option value="{{ item.codigo_madera }}">{{ item.codigo_madera }}</option>
+                            {% endif %}
                         {% endfor %}
                     </select>
                 </div>

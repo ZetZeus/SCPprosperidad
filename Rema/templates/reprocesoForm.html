@@ -137,11 +137,13 @@
             </div>
             <div class="form-row">
                 <div class="form-group">
-                    <label for="codigoMaderaAnt">Codigo Madera Anterior</label>
-                    <select id="codigoMaderaAnt" name="codigoMaderaAnt" class="form-control">
+                    <label for="codigo_madera_ant">Codigo Madera Anterior</label>
+                    <select id="codigo_madera_ant" name="codigo_madera_ant" class="form-control">
                         {% for item in inf_maderas %}
                             {% if item.id_centrotrabajo == 6 %}
-                                <option value={{item.codigo_madera}}> {{item.codigo_madera}} </option>
+                                {% if item.piezas > 0 %}
+                                    <option value={{item.codigo_madera}}> {{item.codigo_madera}} </option>
+                                {% endif %}    
                             {% endif %}
                         {% endfor %}
                     </select>
