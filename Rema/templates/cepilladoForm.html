@@ -108,9 +108,9 @@
 <body>
     <div class="container">
         {% if messages %}
-        {% for mensaje in messages %}
-        {{ mensaje }}
-        {% endfor %}
+            {% for mensaje in messages %}
+                {{ mensaje }}
+            {% endfor %}
         {% endif %}
         <form method="post" action="/Rema/Cepillado">
             {% csrf_token %}

@@ -107,6 +107,11 @@
 <body>
     
 <div class="container">
+    {% if messages %}
+        {% for mensaje in messages %}
+            {{ mensaje }}
+        {% endfor %}
+    {% endif %}
     <form method="post" action="/Rema/Secado">
         {% csrf_token %}
 

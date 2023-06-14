@@ -215,7 +215,6 @@ def aserraderoInfo(request):
     info_maquinas = Maquina.objects.all
     info_maderas = Maderas.objects.all
     p = Proceso.objects.aggregate(Max('id_proceso')).get('id_proceso__max')
-    update_data = {}
     if request.method == "POST":
         form = aserraderoForm(request.POST or None)
         update_data = request.POST.copy()
@@ -232,6 +231,8 @@ def aserraderoInfo(request):
             instance = nuevo_form.save(commit=False)
             instance.id_proceso = p+1
 
+            madera_anterior = Maderas.objects.get(codigo_madera = instance.codigo_madera_ant)
+            cantidad_disponible = madera_anterior.piezas
             for i in Maderas.objects.raw(
                 """
                 SELECT "id_madera", "codigo_madera", "espesor","ancho","largo" FROM "Maderas"
@@ -256,6 +257,10 @@ def aserraderoInfo(request):
                     if (i.nombremaquina == instance.nombre_maquina):
                         instance.nombre_centrotrabajo = i.centrotrabajomaquina
                         instance.id_maquina = i.id_maquina
+
+            if instance.piezassalida > cantidad_disponible:
+                messages.error(request, 'La cantidad de piezas ingresada es superior a la disponible')
+                return render(request,'salidaAseForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})            
             instance.save()
             connection.cursor().execute("""
             UPDATE "Maderas" SET "piezas" = "piezas" + %s WHERE "codigo_madera" = %s
@@ -270,8 +275,7 @@ def aserraderoInfo(request):
         return render(request,'salidaAseForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
     
     else:
-        formInicial = aserraderoForm(initial=update_data)
-        return render(request,'salidaAseForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas, 'form_data': formInicial})
+        return render(request,'salidaAseForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
 
 
 class SecadoFormView(FormView):
@@ -356,6 +360,8 @@ def secadoInfo(request):
             instance = nuevo_form.save(commit=False)
             instance.id_proceso = p+1
 
+            madera_anterior = Maderas.objects.get(codigo_madera = instance.codigo_madera_ant)
+            cantidad_disponible = madera_anterior.piezas
             for i in Maderas.objects.raw(
                 """
                 SELECT "id_madera", "codigo_madera", "espesor","ancho","largo" FROM "Maderas"
@@ -385,6 +391,10 @@ def secadoInfo(request):
                     if (i.nombremaquina == instance.nombre_maquina):
                         instance.nombre_centrotrabajo = i.centrotrabajomaquina
                         instance.id_maquina = i.id_maquina
+
+                if instance.piezasentrada > cantidad_disponible:
+                    messages.error(request, 'La cantidad de piezas ingresada es superior a la disponible')
+                    return render(request,'secadoForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
                 instance.save()
                 connection.cursor().execute("""
                 UPDATE "Maderas" SET "piezas" = "piezas" + %s WHERE "codigo_madera" = %s
@@ -512,6 +522,8 @@ def cepilladoInfo(request):
             instance.id_proceso = p+1
            
 
+            madera_anterior = Maderas.objects.get(codigo_madera = instance.codigo_madera_ant)
+            cantidad_disponible = madera_anterior.piezas
             for i in Maderas.objects.raw(
                 """
                 SELECT "id_madera", "codigo_madera", "espesor","ancho","largo" FROM "Maderas"
@@ -549,6 +561,9 @@ def cepilladoInfo(request):
                     instance.nombre_centrotrabajo = i.centrotrabajomaquina
                     instance.id_maquina = i.id_maquina
             
+            if instance.piezasentrada > cantidad_disponible:
+                messages.error(request, 'La cantidad de piezas ingresada es superior a la disponible')
+                return render(request,'cepilladoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
 
             instance.save()
             connection.cursor().execute("""
@@ -592,6 +607,8 @@ def trozadoInfo(request):
             instance.id_proceso = p+1
             instance.codigo_madera_ant = update_data['codigo_madera_ant']
 
+            madera_anterior = Maderas.objects.get(codigo_madera = instance.codigo_madera_ant)
+            cantidad_disponible = madera_anterior.piezas
             for i in Maderas.objects.raw(
                 """
                 SELECT "id_madera", "codigo_madera", "espesor","ancho","largo" FROM "Maderas"
@@ -621,6 +638,9 @@ def trozadoInfo(request):
                     instance.nombre_centrotrabajo = i.centrotrabajomaquina
                     instance.id_maquina = i.id_maquina
             
+            if instance.piezasentrada > cantidad_disponible:
+                messages.error(request, 'La cantidad de piezas ingresada es superior a la disponible')
+                return render(request,'trozadoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
 
             instance.save()
 
@@ -667,6 +687,9 @@ def fingerInfo(request):
         if nuevo_form.is_valid():
             instance = nuevo_form.save(commit=False)
             instance.id_proceso = p+1
+
+            madera_anterior = Maderas.objects.get(codigo_madera = instance.codigo_madera_ant)
+            cantidad_disponible = madera_anterior.piezas
             for i in Maderas.objects.raw(
                 """
                 SELECT "id_madera", "codigo_madera", "espesor","ancho","largo" FROM "Maderas"
@@ -697,6 +720,9 @@ def fingerInfo(request):
                     instance.nombre_centrotrabajo = i.centrotrabajomaquina
                     instance.id_maquina = i.id_maquina
 
+            if instance.piezasentrada > cantidad_disponible:
+                    messages.error(request, 'La cantidad de piezas ingresada es superior a la disponible')
+                    return render(request,'fingerForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
             instance.save()
 
             connection.cursor().execute("""
@@ -743,6 +769,9 @@ def moldureraInfo(request):
         if nuevo_form.is_valid():
             instance = nuevo_form.save(commit=False)
             instance.id_proceso = p+1
+
+            madera_anterior = Maderas.objects.get(codigo_madera = instance.codigo_madera_ant)
+            cantidad_disponible = madera_anterior.piezas
             for i in Maderas.objects.raw(
                 """
                 SELECT "id_madera", "codigo_madera", "espesor","ancho","largo" FROM "Maderas"
@@ -776,6 +805,10 @@ def moldureraInfo(request):
                     instance.nombre_centrotrabajo = i.centrotrabajomaquina
                     instance.id_maquina = i.id_maquina
             
+            if instance.piezasentrada > cantidad_disponible:
+                    messages.error(request, 'La cantidad de piezas ingresada es superior a la disponible')
+                    return render(request,'moldureraForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+
             instance.save()
             connection.cursor().execute("""
                 UPDATE "Maderas" SET "piezas" = "piezas" + %s WHERE "codigo_madera" = %s
@@ -815,6 +848,9 @@ def reprocesoInfo(request):
         if nuevo_form.is_valid():
             instance = nuevo_form.save(commit=False)
             instance.id_proceso = p+1
+
+            madera_anterior = Maderas.objects.get(codigo_madera = instance.codigo_madera_ant)
+            cantidad_disponible = madera_anterior.piezas
             for i in Maderas.objects.raw(
                 """
                 SELECT "id_madera", "codigo_madera", "espesor","ancho","largo" FROM "Maderas"
@@ -840,6 +876,9 @@ def reprocesoInfo(request):
                     instance.nombre_centrotrabajo = i.centrotrabajomaquina
                     instance.id_maquina = i.id_maquina
 
+            if instance.piezassalida > cantidad_disponible:
+                    messages.error(request, 'La cantidad de piezas ingresada es superior a la disponible')
+                    return render(request,'reprocesoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
             instance.save()
             connection.cursor().execute("""
             UPDATE "Maderas" SET "piezas" = "piezas" + %s WHERE "codigo_madera" = %s
