@@ -395,7 +395,7 @@ def previsualizacionSec(request):
         if piezas_entrada == '' or piezas_salida == '':
                 messages.error(request, 'No se puede previsualizar sin piezas ingresadas')
                 return render(request,'secadoForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
-        if float(piezas_salida) < 0 or float(piezas_entrada < 0) :
+        if float(piezas_salida) < 0 or float(piezas_entrada) < 0 :
             messages.error(request, 'Cantidad inválida de piezas (menor a cero)')
             return render(request,'secadoForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
         
@@ -732,7 +732,7 @@ def previsualizacionTRZ(request):
         if piezas_entrada == '' or piezas_salida == '':
             messages.error(request, 'No se puede previsualizar si no se agregan todas las piezas')
             return render(request,'trozadoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
-        if float(piezas_salida) < 0 or float(piezas_entrada < 0) :
+        if float(piezas_salida) < 0 or float(piezas_entrada) < 0 :
             messages.error(request, 'Cantidad inválida de piezas (menor a cero)')
             return render(request,'trozadoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
         if request.POST.get('fecha') == '':    
