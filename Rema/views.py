@@ -322,6 +322,10 @@ def previsualizacionSec(request):
         if piezas_entrada == '' or piezas_salida == '':
                 messages.error(request, 'No se puede previsualizar sin piezas ingresadas')
                 return render(request,'secadoForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
+        if request.POST.get('fecha') == '':    
+            messages.error(request, 'Ingrese fecha correctamente')
+            return render(request,'secadoForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
+        
         if nuevo_formVis.is_valid():
             form_data = nuevo_formVis.cleaned_data
             piezas_entrada = float(request.POST.get('piezasentrada'))
@@ -476,6 +480,9 @@ def previsualizacionCep(request):
         if piezas_entrada == '' or piezas_salida == '' or piezas_rechazodef == '' or piezas_rechazohum == '' or piezas_rechazoproc == '':
                 messages.error(request, 'No se puede previsualizar si no se agregan todas las piezas')
                 return render(request,'cepilladoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+        if request.POST.get('fecha') == '':    
+            messages.error(request, 'Ingrese fecha correctamente')
+            return render(request,'cepilladoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
         if nuevo_formVis.is_valid():
             form_data = nuevo_formVis.cleaned_data
             piezas_entrada = float(request.POST.get('piezasentrada'))
@@ -644,7 +651,9 @@ def previsualizacionTRZ(request):
         if piezas_entrada == '' or piezas_salida == '':
             messages.error(request, 'No se puede previsualizar si no se agregan todas las piezas')
             return render(request,'trozadoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
-       
+        if request.POST.get('fecha') == '':    
+            messages.error(request, 'Ingrese fecha correctamente')
+            return render(request,'trozadoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
             
         if nuevo_formVis.is_valid():
             form_data = nuevo_formVis.cleaned_data
@@ -796,7 +805,9 @@ def previsualizacionFNG(request):
         if piezas_entrada == '' or piezas_calidad == '' or piezas_reproceso == '':
             messages.error(request, 'No se puede previsualizar si no se agregan todas las piezas')
             return render(request,'fingerForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
-       
+        if request.POST.get('fecha') == '':    
+            messages.error(request, 'Ingrese fecha correctamente')
+            return render(request,'fingerForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
         if nuevo_formVis.is_valid():
             form_data = nuevo_formVis.cleaned_data
             piezas_entrada = float(request.POST.get('piezasentrada'))
@@ -950,7 +961,9 @@ def previsualizacionMOL(request):
         if piezas_entrada == '' or piezas_calidad == '' or piezas_rechazo == '':
             messages.error(request, 'No se puede previsualizar si no se agregan todas las piezas')
             return render(request,'moldureraForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
-       
+        if request.POST.get('fecha') == '':    
+            messages.error(request, 'Ingrese fecha correctamente')
+            return render(request,'moldureraForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
         if nuevo_formVis.is_valid():
             form_data = nuevo_formVis.cleaned_data
             piezas_entrada = float(request.POST.get('piezasentrada'))
@@ -1098,6 +1111,9 @@ def previsualizacionRPR(request):
         piezas_salida = request.POST.get('piezassalida')
         if piezas_salida == '':
             messages.error(request, 'No se puede previsualizar si no se agregan todas las piezas')
+            return render(request,'reprocesoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+        if request.POST.get('fecha') == '':    
+            messages.error(request, 'Ingrese fecha correctamente')
             return render(request,'reprocesoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
         if nuevo_formVis.is_valid():
             form_data = nuevo_formVis.cleaned_data
