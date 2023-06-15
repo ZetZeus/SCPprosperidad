@@ -179,6 +179,15 @@ def previsualizacion(request):
                             'volumensalida': '0',
                             'volumentotal':'0'})
         nuevo_formVis = aserraderoForm(update_data)
+        piezas_salida = request.POST.get('piezassalida')
+        if piezas_salida == '':
+            messages.error(request, 'No se puede previsualizar sin piezas ingresadas')
+            return render(request,'salidaAseForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
+        if request.POST.get('fecha') == '':
+            messages.error(request, 'Ingrese la Fecha correctamente')
+            return render(request,'salidaAseForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
+
+
         if nuevo_formVis.is_valid():
             form_data = nuevo_formVis.cleaned_data
             piezas_salida = float(request.POST.get('piezassalida'))
@@ -307,6 +316,12 @@ def previsualizacionSec(request):
                             'volumensalida': '0',
                             'volumentotal':'0'})
         nuevo_formVis = secadoForm(update_data)
+        piezas_entrada = request.POST.get('piezasentrada')
+        piezas_salida = request.POST.get('piezassalida')
+
+        if piezas_entrada == '' or piezas_salida == '':
+                messages.error(request, 'No se puede previsualizar sin piezas ingresadas')
+                return render(request,'secadoForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
         if nuevo_formVis.is_valid():
             form_data = nuevo_formVis.cleaned_data
             piezas_entrada = float(request.POST.get('piezasentrada'))
@@ -453,6 +468,14 @@ def previsualizacionCep(request):
                             'volumenrechazoproc': '0',
                             'volumentotal':'0',})
         nuevo_formVis = cepilladoForm(update_data)
+        piezas_entrada = request.POST.get('piezasentrada')
+        piezas_salida = request.POST.get('piezassalida')
+        piezas_rechazohum = request.POST.get('piezasrechazohum')
+        piezas_rechazodef = request.POST.get('piezasrechazodef')
+        piezas_rechazoproc = request.POST.get('piezasrechazoproc')
+        if piezas_entrada == '' or piezas_salida == '' or piezas_rechazodef == '' or piezas_rechazohum == '' or piezas_rechazoproc == '':
+                messages.error(request, 'No se puede previsualizar si no se agregan todas las piezas')
+                return render(request,'cepilladoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
         if nuevo_formVis.is_valid():
             form_data = nuevo_formVis.cleaned_data
             piezas_entrada = float(request.POST.get('piezasentrada'))
@@ -476,6 +499,8 @@ def previsualizacionCep(request):
             form_data['id_maquina'] = id_maquina    
             form_data['id_area'] = 1
             form_data['id_centrotrabajo'] = 4
+
+            
             volumenEntrada = calcularVolumen(codigo_madera,piezas_entrada)
             volumenSalida = calcularVolumen(codigo_madera,piezas_salida)
             volumenRechazoHum = calcularVolumen(codigo_madera,piezas_rechazohum)
@@ -614,6 +639,13 @@ def previsualizacionTRZ(request):
                             'volumensalida': '0',
                             'volumentotal':'0'})
         nuevo_formVis = trozadoForm(update_data)
+        piezas_entrada = request.POST.get('piezasentrada')
+        piezas_salida = request.POST.get('piezassalida')
+        if piezas_entrada == '' or piezas_salida == '':
+            messages.error(request, 'No se puede previsualizar si no se agregan todas las piezas')
+            return render(request,'trozadoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+       
+            
         if nuevo_formVis.is_valid():
             form_data = nuevo_formVis.cleaned_data
             piezas_entrada = float(request.POST.get('piezasentrada'))
@@ -638,7 +670,7 @@ def previsualizacionTRZ(request):
             volumenSalida = calcularVolumen(codigo_madera,piezas_salida)
             form_data['volumenentrada'] = volumenEntrada
             form_data['volumensalida'] = volumenSalida
-            form['volumentotal'] = volumenSalida
+            form_data['volumentotal'] = volumenSalida
 
             return render(request,'previsualTRZ.html',{'form_data':form_data})
     else:
@@ -758,6 +790,13 @@ def previsualizacionFNG(request):
                             'volumenreproceso':'0',
                             'volumentotal':'0'})
         nuevo_formVis = fingerForm(update_data)
+        piezas_entrada = request.POST.get('piezasentrada')
+        piezas_calidad = request.POST.get('piezascalidad')
+        piezas_reproceso = request.POST.get('piezasreproceso')
+        if piezas_entrada == '' or piezas_calidad == '' or piezas_reproceso == '':
+            messages.error(request, 'No se puede previsualizar si no se agregan todas las piezas')
+            return render(request,'fingerForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+       
         if nuevo_formVis.is_valid():
             form_data = nuevo_formVis.cleaned_data
             piezas_entrada = float(request.POST.get('piezasentrada'))
@@ -905,6 +944,13 @@ def previsualizacionMOL(request):
                             'volumenrechazoproc':'0',
                             'volumentotal':'0'})
         nuevo_formVis = moldureraForm(update_data)
+        piezas_entrada = request.POST.get('piezasentrada')
+        piezas_calidad = request.POST.get('piezascalidad')
+        piezas_rechazo = request.POST.get('piezasrechazoproc')
+        if piezas_entrada == '' or piezas_calidad == '' or piezas_rechazo == '':
+            messages.error(request, 'No se puede previsualizar si no se agregan todas las piezas')
+            return render(request,'moldureraForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+       
         if nuevo_formVis.is_valid():
             form_data = nuevo_formVis.cleaned_data
             piezas_entrada = float(request.POST.get('piezasentrada'))
@@ -1049,6 +1095,10 @@ def previsualizacionRPR(request):
                             'volumensalida': '0',
                             'volumentotal':'0'})
         nuevo_formVis = reprocesoForm(update_data)
+        piezas_salida = request.POST.get('piezassalida')
+        if piezas_salida == '':
+            messages.error(request, 'No se puede previsualizar si no se agregan todas las piezas')
+            return render(request,'reprocesoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
         if nuevo_formVis.is_valid():
             form_data = nuevo_formVis.cleaned_data
             piezas_salida = float(request.POST.get('piezassalida'))

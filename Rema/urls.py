@@ -26,5 +26,5 @@ urlpatterns = [
     path("Moldurera/",views.MoldureraFormView.as_view(),name='moldurera'),
     path("Moldurera/previsualizacionMOL",views.previsualizacionMOL,name='previsualMOL'),
     path("Reproceso/",views.ReprocesoFormView.as_view(),name='reproceso'),
-    path("Moldurera/previsualizacionRPR",views.previsualizacionRPR,name='previsualRPR')
+    path("Reproceso/previsualizacionRPR",views.previsualizacionRPR,name='previsualRPR')
 ]
