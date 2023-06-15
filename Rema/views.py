@@ -778,7 +778,7 @@ def previsualizacionFNG(request):
             form_data['id_madera'] = id_madera
             form_data['id_maquina'] = id_maquina    
             form_data['id_area'] = 1
-            form_data['id_centrotrabajo'] = 3
+            form_data['id_centrotrabajo'] = 6
             volumenEntrada = calcularVolumen(codigo_madera,piezas_entrada)
             volumenCalidad = calcularVolumen(codigo_madera,piezas_calidad)
             volumenReproceso = calcularVolumen(codigo_madera, piezas_reproceso)
@@ -1019,6 +1019,65 @@ def moldureraInfo(request):
 
     else:
         return render(request,'moldureraForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+
+class ReprocesoFormView(FormView):
+    template_name = 'reprocesoForm.html'
+    form_class = reprocesoForm
+    success_url = '/Rema/Reproceso'
+
+    def form_valid(self, form):
+        form_data = form.cleaned_data
+        if 'ingresar' in self.request.POST:
+            form.save()
+        if 'previsualizar' in self.request.POST:
+            return redirect('previsualizacionRPR')   
+        return super().form_valid(form)
+
+def previsualizacionRPR(request):
+    info_maquinas = Maquina.objects.all
+    info_maderas = Maderas.objects.all
+    if request.method == 'POST':
+        form = reprocesoForm(request.POST)
+        update_data = request.POST.copy()
+        p = Proceso.objects.aggregate(Max('id_proceso')).get('id_proceso__max')
+        idProceso = p+1
+        update_data.update({'id_proceso': idProceso,
+                            'id_madera':'0',
+                            'id_centrotrabajo':'0',
+                            'id_area':'0',
+                            'id_maquina': '0',
+                            'volumensalida': '0',
+                            'volumentotal':'0'})
+        nuevo_formVis = reprocesoForm(update_data)
+        if nuevo_formVis.is_valid():
+            form_data = nuevo_formVis.cleaned_data
+            piezas_salida = float(request.POST.get('piezassalida'))
+            codigo_madera = request.POST.get('codigo_madera')
+            id_madera = None
+            id_maquina = None
+            for i in Maderas.objects.raw("""SELECT "id_madera", "codigo_madera" FROM "Maderas" WHERE "id_centroTrabajo" = 7"""):
+                if i.codigo_madera == codigo_madera:
+                    id_madera = i.id_madera
+                    break
+
+            for i in Maquina.objects.raw("""SELECT "id_maquina", "nombreMaquina" FROM "Maquina" WHERE "centroTrabajoMaquina" = 'Reproceso'"""):
+                if i.nombremaquina == request.POST.get('nombre_maquina'):
+                    id_maquina = i.id_maquina
+                    break
+
+            form_data['id_madera'] = id_madera
+            form_data['id_maquina'] = id_maquina    
+            form_data['id_area'] = 1
+            form_data['id_centrotrabajo'] = 7    
+            volumenSalida = calcularVolumen(codigo_madera,piezas_salida)
+            form_data['volumensalida'] = volumenSalida
+            form_data['volumentotal'] = volumenSalida
+
+            return render(request,'previsualRPR.html',{'form_data':form_data})
+    else:
+        form = reprocesoForm()
+    return redirect('reprocesoInfo')        
+
 
 
 def reprocesoInfo(request):
