@@ -183,6 +183,10 @@ def previsualizacion(request):
         if piezas_salida == '':
             messages.error(request, 'No se puede previsualizar sin piezas ingresadas')
             return render(request,'salidaAseForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
+        if float(piezas_salida) < 0 :
+            messages.error(request, 'Cantidad inválida de piezas (menor a cero)')
+            return render(request,'salidaAseForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
+        
         if request.POST.get('fecha') == '':
             messages.error(request, 'Ingrese la Fecha correctamente')
             return render(request,'salidaAseForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
@@ -322,6 +326,11 @@ def previsualizacionSec(request):
         if piezas_entrada == '' or piezas_salida == '':
                 messages.error(request, 'No se puede previsualizar sin piezas ingresadas')
                 return render(request,'secadoForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
+        if float(piezas_salida) < 0 or float(piezas_entrada < 0) :
+            messages.error(request, 'Cantidad inválida de piezas (menor a cero)')
+            return render(request,'secadoForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
+        
+        
         if request.POST.get('fecha') == '':    
             messages.error(request, 'Ingrese fecha correctamente')
             return render(request,'secadoForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
@@ -480,6 +489,9 @@ def previsualizacionCep(request):
         if piezas_entrada == '' or piezas_salida == '' or piezas_rechazodef == '' or piezas_rechazohum == '' or piezas_rechazoproc == '':
                 messages.error(request, 'No se puede previsualizar si no se agregan todas las piezas')
                 return render(request,'cepilladoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+        if float(piezas_salida) < 0 or float(piezas_entrada) < 0 or float(piezas_rechazodef) < 0 or float(piezas_rechazohum) < 0 or float(piezas_rechazoproc) < 0 :
+            messages.error(request, 'Cantidad inválida de piezas (menor a cero)')
+            return render(request,'cepilladoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
         if request.POST.get('fecha') == '':    
             messages.error(request, 'Ingrese fecha correctamente')
             return render(request,'cepilladoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
@@ -651,6 +663,9 @@ def previsualizacionTRZ(request):
         if piezas_entrada == '' or piezas_salida == '':
             messages.error(request, 'No se puede previsualizar si no se agregan todas las piezas')
             return render(request,'trozadoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+        if float(piezas_salida) < 0 or float(piezas_entrada < 0) :
+            messages.error(request, 'Cantidad inválida de piezas (menor a cero)')
+            return render(request,'trozadoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
         if request.POST.get('fecha') == '':    
             messages.error(request, 'Ingrese fecha correctamente')
             return render(request,'trozadoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
@@ -804,6 +819,9 @@ def previsualizacionFNG(request):
         piezas_reproceso = request.POST.get('piezasreproceso')
         if piezas_entrada == '' or piezas_calidad == '' or piezas_reproceso == '':
             messages.error(request, 'No se puede previsualizar si no se agregan todas las piezas')
+            return render(request,'fingerForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+        if float(piezas_entrada) < 0 or float(piezas_calidad) < 0 or float(piezas_reproceso) < 0 :
+            messages.error(request, 'Cantidad inválida de piezas (menor a cero)')
             return render(request,'fingerForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
         if request.POST.get('fecha') == '':    
             messages.error(request, 'Ingrese fecha correctamente')
@@ -961,6 +979,9 @@ def previsualizacionMOL(request):
         if piezas_entrada == '' or piezas_calidad == '' or piezas_rechazo == '':
             messages.error(request, 'No se puede previsualizar si no se agregan todas las piezas')
             return render(request,'moldureraForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+        if float(piezas_entrada) < 0 or float(piezas_calidad) < 0 or float(piezas_rechazo) < 0 :
+            messages.error(request, 'Cantidad inválida de piezas (menor a cero)')
+            return render(request,'moldureraForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
         if request.POST.get('fecha') == '':    
             messages.error(request, 'Ingrese fecha correctamente')
             return render(request,'moldureraForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
@@ -1111,6 +1132,9 @@ def previsualizacionRPR(request):
         piezas_salida = request.POST.get('piezassalida')
         if piezas_salida == '':
             messages.error(request, 'No se puede previsualizar si no se agregan todas las piezas')
+            return render(request,'reprocesoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+        if float(piezas_salida) < 0 :
+            messages.error(request, 'Cantidad inválida de piezas (menor a cero)')
             return render(request,'reprocesoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
         if request.POST.get('fecha') == '':    
             messages.error(request, 'Ingrese fecha correctamente')
