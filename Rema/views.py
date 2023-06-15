@@ -91,11 +91,81 @@ def nuevoCodigo(request):
 
     else:
         return render(request,'nuevoCodigoForm.html', {'inf_madera': info_maderas, 'inf_ct':info_ct})
-    
+
+def calcularVolumenEASE(codigo_de_madera, piezas_recibidas):
+    madera = Maderas.objects.get(codigo_madera = codigo_de_madera)
+    volumen = (madera.diametro * madera.diametro * madera.largo * piezas_recibidas) / 10000
+    return volumen
+
 def calcularVolumen(codigo_de_madera, piezas_recibidas):
     madera = Maderas.objects.get(codigo_madera = codigo_de_madera)
     volumen = (madera.espesor * madera.ancho * madera.largo * piezas_recibidas) / 1000000    
     return volumen
+
+class EntradaASEFormView(FormView):
+    template_name = 'entradaAseForm.html'
+    form_class = entradaAserraderoForm
+    success_url = '/Rema/EntradaAserradero'
+
+    def form_valid(self, form):
+        form_data = form.cleaned_data
+        if 'ingresar' in self.request.POST:
+            form.save()
+        if 'previsualizar' in self.request.POST:
+            return redirect('previsualizacionEASE')
+        return super().form_valid(form)
+    
+def previsualizacionEASE(request):
+    info_maquinas = Maquina.objects.all
+    info_maderas = Maderas.objects.all
+    p = Proceso.objects.aggregate(Max('id_proceso')).get('id_proceso__max')
+    if request.method == "POST":
+        form = entradaAserraderoForm(request.POST or None)
+        update_data = request.POST.copy()
+        idProceso = p+1
+        update_data.update({'idproceso': idProceso,
+                            'id_madera':'0',
+                            'id_centrotrabajo':'0',
+                            'id_area':'0',
+                            'id_maquina': '0',
+                            'volumensalida':'0',
+                            'volumentotal':'0'})
+        nuevo_formVis = entradaAserraderoForm(update_data)
+        piezas_salida = request.POST.get('piezassalida')
+        if piezas_salida == '':
+            messages.error(request, 'No se puede previsualizar si no se agregan todas las piezas')
+            return render(request,'entradaAseForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
+        if float(piezas_salida) < 0: 
+            messages.error(request, 'Cantidad inválida de piezas (menor a cero)')
+            return render(request,'entradaAseForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
+        if request.POST.get('fecha') == '':    
+            messages.error(request, 'Ingrese fecha correctamente')
+            return render(request,'entradaAseForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
+        
+        if nuevo_formVis.is_valid():
+            form_data = nuevo_formVis.cleaned_data
+            piezas_salida = float(request.POST.get('piezassalida'))
+            codigo_madera = request.POST.get('codigo_madera')
+
+            id_madera = None
+            for i in Maderas.objects.raw("""SELECT "id_madera", "codigo_madera" FROM "Maderas" WHERE "id_centroTrabajo" = 1"""):
+                if i.codigo_madera == codigo_madera:
+                    id_madera = i.id_madera
+                    break
+
+            form_data['id_madera'] = id_madera    
+            form_data['id_area'] = 1
+            form_data['id_centrotrabajo'] = 1
+
+            volumendSalida = calcularVolumenEASE(codigo_madera,piezas_salida)
+            form_data['volumensalida'] = volumendSalida
+            form_data['volumentotal'] = volumendSalida
+
+            return render(request, 'previsualEASE.html',{'form_data': form_data})
+    else:
+        form = entradaAserraderoForm()
+    return redirect('entradaAserraderoInfo')    
+    
 
 def entradaAserraderoInfo(request):
     info_maquinas = Maquina.objects.all
@@ -113,7 +183,6 @@ def entradaAserraderoInfo(request):
                             'volumensalida':'0',
                             'volumentotal':'0'})
         nuevo_form = entradaAserraderoForm(update_data)
-        print(nuevo_form)
         if nuevo_form.is_valid():
             instance = nuevo_form.save(commit=False)
             instance.id_proceso = p+1

@@ -13,6 +13,8 @@ urlpatterns = [
     path("EntradaAserradero",views.entradaAserraderoInfo),
     path("nuevocodigo",views.nuevoCodigo),
     path("Reproceso", views.reprocesoInfo),
+    path("EntradaAserradero/",views.EntradaASEFormView.as_view(),name='entrada_aserradero'),
+    path("EntradaAserradero/preview",views.previsualizacionEASE,name='previsualEASE'),
     path("SalidaAserradero/",views.AserraderoFormView.as_view(),name='salida_aserradero'),
     path("SalidaAserradero/preview",views.previsualizacion,name='previsualizacion'),
     path("Cepillado/",views.CepilladoFormView.as_view(),name='cepillado'),

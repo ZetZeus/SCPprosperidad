@@ -105,6 +105,11 @@
 </style>
 
 <div class="container">
+    {% if messages %}
+            {% for mensaje in messages %}
+                {{ mensaje }}
+            {% endfor %}
+        {% endif %}
     <form method="post" action="/Rema/EntradaAserradero">
         {% csrf_token %}
         <h1>Entrada Aserradero</h1>
@@ -135,6 +140,8 @@
         
         <div class="center-btn">
             <button type="submit" class="btn">Ingresar</button>
+            <button type="submit" class="btn" name="previsualizar" formmethod="post" formaction="{% url 'previsualEASE' %}">Previsualizar</button>
+
         </div>
     </form>
     <div class="outside-btns">
