@@ -142,6 +142,11 @@
                                 <option value={{item.codigo_madera}}> {{item.codigo_madera}} </option>
                             {% endif %}    
                         {% endif %}
+                        {% if item.id_centrotrabajo == 4 %}
+                            {% if item.reproceso > 0 %}
+                                <option value={{item.codigo_madera}}> {{item.codigo_madera}} </option>
+                            {% endif %}  
+                        {% endif %}
                     {% endfor %}
                 </select>
             </div>

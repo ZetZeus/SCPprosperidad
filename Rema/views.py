@@ -6,6 +6,7 @@ from django.db import connection
 from formtools.preview import FormPreview
 from formtools.wizard.views import SessionWizardView
 from django.views.generic.edit import FormView
+from datetime import datetime
 
 
 
@@ -514,6 +515,7 @@ def secadoInfo(request):
 
             madera_anterior = Maderas.objects.get(codigo_madera = instance.codigo_madera_ant)
             cantidad_disponible = madera_anterior.piezas
+            cantidad_disponibleCEP = madera_anterior.reproceso
             for i in Maderas.objects.raw(
                 """
                 SELECT "id_madera", "codigo_madera", "espesor","ancho","largo" FROM "Maderas"
@@ -544,9 +546,12 @@ def secadoInfo(request):
                         instance.nombre_centrotrabajo = i.centrotrabajomaquina
                         instance.id_maquina = i.id_maquina
 
-                if instance.piezasentrada > cantidad_disponible:
-                    messages.error(request, 'La cantidad de piezas ingresada es superior a la disponible')
-                    return render(request,'secadoForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
+            if instance.piezasentrada > cantidad_disponible:
+                messages.error(request, 'La cantidad de piezas ingresada es superior a la disponible')
+                return render(request,'secadoForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
+            if instance.piezasentrada > cantidad_disponibleCEP:
+                messages.error(request, 'La cantidad de piezas de CEP ingresada es superior a la disponible')
+                return render(request,'secadoForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})    
             instance.save()
             connection.cursor().execute("""
             UPDATE "Maderas" SET "piezas" = "piezas" + %s WHERE "codigo_madera" = %s
@@ -555,6 +560,9 @@ def secadoInfo(request):
             connection.cursor().execute("""
             UPDATE "Maderas" SET "piezas" = "piezas" - %s WHERE "codigo_madera" = %s
             """,(instance.piezasentrada,instance.codigo_madera_ant))
+            connection.cursor().execute("""
+                UPDATE "Maderas" SET "reproceso" = "reproceso" - %s WHERE "codigo_madera" = %s
+                """,(instance.piezasentrada, instance.codigo_madera_ant))
               
             actualizarMadera()
 
@@ -569,7 +577,6 @@ def secadoInfo(request):
 
     else:
         return render(request,'secadoForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
-
 
 class CepilladoFormView(FormView):
     template_name = 'cepilladoForm.html'
@@ -717,18 +724,18 @@ def cepilladoInfo(request):
                     instance.id_madera = i.id_madera
                 
                 if (instance.piezasentrada != None):
-                    instance.volumenentrada = ((i.espesor * i.ancho * i.largo) * instance.piezasentrada) / 1000000
+                    instance.volumenentrada = calcularVolumen(instance.codigo_madera,instance.piezasentrada)
 
                 if(instance.piezassalida != None):    
-                    instance.volumensalida = ((i.espesor * i.ancho * i.largo) * instance.piezassalida) / 1000000
+                    instance.volumensalida = calcularVolumen(instance.codigo_madera,instance.piezassalida)
                 if(instance.piezasrechazohum != None):
-                    instance.volumenrechazohum = ((i.espesor * i.ancho * i.largo) * instance.piezasrechazohum) / 1000000
+                    instance.volumenrechazohum = calcularVolumen(instance.codigo_madera,instance.piezasrechazohum)
 
                 if(instance.piezasrechazodef != None):
-                    instance.volumenrechazodef = ((i.espesor * i.ancho * i.largo) * instance.piezasrechazodef) / 1000000
+                    instance.volumenrechazodef = calcularVolumen(instance.codigo_madera, instance.piezasrechazodef)
                 
                 if(instance.piezasrechazoproc != None):
-                    instance.volumenrechazoproc = ((i.espesor * i.ancho * i.largo) * instance.piezasrechazoproc) / 1000000
+                    instance.volumenrechazoproc = calcularVolumen(instance.codigo_madera,instance.piezasrechazoproc)
 
                 instance.volumentotal = instance.volumensalida
 
@@ -755,6 +762,10 @@ def cepilladoInfo(request):
             connection.cursor().execute("""
             UPDATE "Maderas" SET "piezas" = "piezas" - %s WHERE "codigo_madera" = %s
             """,(instance.piezasentrada,instance.codigo_madera_ant))
+            connection.cursor().execute("""
+                UPDATE "Maderas" SET "reproceso" = "reproceso" + %s WHERE "codigo_madera" = %s
+                """,(instance.piezasrechazohum, instance.codigo_madera)) 
+
             
 
             actualizarMadera() 
