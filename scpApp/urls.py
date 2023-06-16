@@ -22,7 +22,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path("Rema/", include("Rema.urls")),
     path('',views.home,name='home'),
-    
-
-
 ]
+
+handler404 = 'Rema.views.error404'

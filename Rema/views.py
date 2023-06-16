@@ -19,6 +19,9 @@ def home(request):
     info_area = Centrotrabajo.objects.all
     return render(request, 'homeRema.html',{'todo': info_area})
 
+def error404(request,exception):
+    return render(request, '404.html')
+
 def actualizarMadera():
     with connection.cursor() as cursor:
         cursor.execute("""
