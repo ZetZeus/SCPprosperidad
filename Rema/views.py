@@ -55,6 +55,21 @@ def nuevoCodigo(request):
                             'reproceso':'0',
                             'volumenreproceso':'0'})
         nuevo_form = nuevaMadera(update_data)
+        espesor = request.POST.get('espesor')
+        ancho = request.POST.get('ancho')
+        largo = request.POST.get('largo')
+        diametro = request.POST.get('diametro')
+        cantidadxpaquete = request.POST.get('cantidadxpaquete')
+        if espesor == '' or ancho == '' or largo == '' or diametro == '' or cantidadxpaquete == '':
+            messages.error(request,'Asegurese de llenar todos los campos de texto')
+            return render(request,'nuevoCodigoForm.html', {'inf_madera': info_maderas, 'inf_ct':info_ct})
+        
+        if float(espesor) < 0 or float(ancho) < 0 or float(largo) < 0 or float(diametro) < 0 or float(cantidadxpaquete) < 0:
+            messages.error(request,'Medidas inválidas (menor a cero)')
+            return render(request,'nuevoCodigoForm.html', {'inf_madera': info_maderas, 'inf_ct':info_ct})
+
+
+
         if nuevo_form.is_valid():
             instance = nuevo_form.save(commit=False)
             instance.id_madera = p+1
