@@ -164,7 +164,7 @@
             </div>
 
             <div class="btn-container">
-                <button type="submit" class="btn" value="ingresar">Ingresar</button>
+                <button type="submit" class="btn" value="ingresar" onclick="return confirm('¿Desea registrar la información ingresada? Revise y confirme ');">Ingresar</button>
                 <button type="submit" class="btn" name="previsualizar" formmethod="post" formaction="{% url 'previsualizacion' %}">Previsualizar</button>
                 
             </div>
