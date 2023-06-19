@@ -560,10 +560,14 @@ def secadoInfo(request):
             connection.cursor().execute("""
             UPDATE "Maderas" SET "piezas" = "piezas" - %s WHERE "codigo_madera" = %s
             """,(instance.piezasentrada,instance.codigo_madera_ant))
-            connection.cursor().execute("""
-                UPDATE "Maderas" SET "reproceso" = "reproceso" - %s WHERE "codigo_madera" = %s
-                """,(instance.piezasentrada, instance.codigo_madera_ant))
-              
+            
+            if instance.codigo_madera_ant[0] == 'C':
+                connection.cursor().execute("""
+                    UPDATE "Maderas"
+                    SET "reproceso" = "reproceso" - %s
+                    WHERE "codigo_madera" = %s
+                    """,(instance.piezasentrada, instance.codigo_madera_ant))
+                
             actualizarMadera()
 
                 
