@@ -6,7 +6,7 @@ from django.db import connection
 from formtools.preview import FormPreview
 from formtools.wizard.views import SessionWizardView
 from django.views.generic.edit import FormView
-from datetime import datetime
+from django.core.cache import cache
 
 
 
@@ -1168,8 +1168,9 @@ class MoldureraFormView(FormView):
         return super().form_valid(form)
 
 def previsualizacionMOL(request):
-    info_maquinas = Maquina.objects.all
-    info_maderas = Maderas.objects.all
+    info_maquinas = Maquina.objects.all()
+    info_maderas = Maderas.objects.all()
+
     if request.method == 'POST':
         form = moldureraForm(request.POST)
         update_data = request.POST.copy()
@@ -1189,19 +1190,23 @@ def previsualizacionMOL(request):
         piezas_calidad = request.POST.get('piezascalidad')
         piezas_rechazo = request.POST.get('piezasrechazoproc')
         suma_salida = float(piezas_calidad) + float(piezas_rechazo)
+
         if piezas_entrada == '' or piezas_calidad == '' or piezas_rechazo == '':
             messages.error(request, 'No se puede previsualizar si no se agregan todas las piezas')
-            return render(request,'moldureraForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
-        if float(piezas_entrada) < 0 or float(piezas_calidad) < 0 or float(piezas_rechazo) < 0 :
-            messages.error(request, 'Cantidad inválida de piezas (menor a cero)')
-            return render(request,'moldureraForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
-        if suma_salida > float(piezas_entrada):
-            messages.error(request,'Piezas calidad más rechazo no puede ser superior a entrada')
-            return render(request,'moldureraForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+            return render(request, 'moldureraForm.html', {'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
 
-        if request.POST.get('fecha') == '':    
+        if float(piezas_entrada) < 0 or float(piezas_calidad) < 0 or float(piezas_rechazo) < 0:
+            messages.error(request, 'Cantidad inválida de piezas (menor a cero)')
+            return render(request, 'moldureraForm.html', {'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+
+        if suma_salida > float(piezas_entrada):
+            messages.error(request, 'Piezas calidad más rechazo no puede ser superior a entrada')
+            return render(request, 'moldureraForm.html', {'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+
+        if request.POST.get('fecha') == '':
             messages.error(request, 'Ingrese fecha correctamente')
-            return render(request,'moldureraForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+            return render(request, 'moldureraForm.html', {'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+
         if nuevo_formVis.is_valid():
             form_data = nuevo_formVis.cleaned_data
             piezas_entrada = float(request.POST.get('piezasentrada'))
@@ -1210,6 +1215,7 @@ def previsualizacionMOL(request):
             codigo_madera = request.POST.get('codigo_madera')
             id_madera = None
             id_maquina = None
+
             for i in Maderas.objects.raw("""SELECT "id_madera", "codigo_madera" FROM "Maderas" WHERE "id_centroTrabajo" = 8"""):
                 if i.codigo_madera == codigo_madera:
                     id_madera = i.id_madera
@@ -1219,29 +1225,33 @@ def previsualizacionMOL(request):
                 if i.nombremaquina == request.POST.get('nombre_maquina'):
                     id_maquina = i.id_maquina
                     break
+
             form_data['id_madera'] = id_madera
-            form_data['id_maquina'] = id_maquina    
+            form_data['id_maquina'] = id_maquina
             form_data['id_area'] = 1
-            form_data['id_centrotrabajo'] = 5 
-            volumenEntrada = calcularVolumen(codigo_madera,piezas_entrada)
-            volumenCalidad = calcularVolumen(codigo_madera,piezas_calidad)
-            volumenRechazo = calcularVolumen(codigo_madera,piezas_rechazo)
+            form_data['id_centrotrabajo'] = 5
+            volumenEntrada = calcularVolumen(codigo_madera, piezas_entrada)
+            volumenCalidad = calcularVolumen(codigo_madera, piezas_calidad)
+            volumenRechazo = calcularVolumen(codigo_madera, piezas_rechazo)
             form_data['volumenentrada'] = volumenEntrada
             form_data['volumencalidad'] = volumenCalidad
             form_data['volumenrechazoproc'] = volumenRechazo
             form_data['volumentotal'] = volumenCalidad + volumenRechazo
 
-            return render(request,'previsualMOL.html',{'form_data':form_data})
-    else:
-        form = moldureraForm()
-    return redirect('moldureraInfo')
+            cache.delete('form_data')
+            return render(request, 'previsualMOL.html', {'form_data': form_data, 'form': nuevo_formVis})
 
+    else:
+        form_data = cache.get('form_data')
+        form = moldureraForm(form_data) if form_data else moldureraForm()
+
+    return render(request, 'moldureraForm.html', {'form': form, 'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
 def moldureraInfo(request):
     info_maquinas = Maquina.objects.all
     info_maderas = Maderas.objects.all
     p = Proceso.objects.aggregate(Max('id_proceso')).get('id_proceso__max')
     if request.method == "POST":
-        form = moldureraForm(request.POST or None)
+        
         update_data = request.POST.copy()
         idProceso = p+1
         update_data.update({'id_proceso': idProceso,
@@ -1261,16 +1271,16 @@ def moldureraInfo(request):
         suma_salida = float(piezas_calidad) + float(piezas_rechazo)
         if piezas_entrada == '' or piezas_calidad == '' or piezas_rechazo == '':
             messages.error(request, 'No se puede Ingresar si no se agregan todas las piezas')
-            return render(request,'moldureraForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+            return render(request,'moldureraForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas,'nuevo_form':nuevo_form})
         if float(piezas_entrada) < 0 or float(piezas_calidad) < 0 or float(piezas_rechazo) < 0 :
             messages.error(request, 'Cantidad inválida de piezas (menor a cero)')
-            return render(request,'moldureraForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+            return render(request,'moldureraForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas,'nuevo_form':nuevo_form})
         if suma_salida > float(piezas_entrada):
             messages.error(request,'Piezas calidad más rechazo no puede ser superior a entrada')
-            return render(request,'moldureraForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+            return render(request,'moldureraForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas,'nuevo_form':nuevo_form})
         if request.POST.get('fecha') == '':    
             messages.error(request, 'Ingrese fecha correctamente')
-            return render(request,'moldureraForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+            return render(request,'moldureraForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas,'nuevo_form':nuevo_form})
        
         if nuevo_form.is_valid():
             instance = nuevo_form.save(commit=False)
@@ -1313,7 +1323,7 @@ def moldureraInfo(request):
             
             if instance.piezasentrada > cantidad_disponible:
                     messages.error(request, 'La cantidad de piezas ingresada es superior a la disponible')
-                    return render(request,'moldureraForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+                    return render(request,'moldureraForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas, 'nuevo_form':nuevo_form})
 
             instance.save()
             connection.cursor().execute("""
@@ -1324,15 +1334,19 @@ def moldureraInfo(request):
             """,(instance.piezasentrada,instance.codigo_madera_ant))
             
 
-            actualizarMadera()   
+            actualizarMadera()
+            cache.delete('form_data')   
         else:
             messages.success(request,('Error al ingresar'))
-            return render(request,'moldureraForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+            return render(request,'moldureraForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas, 'nuevo_form':nuevo_form})
  
-        return render(request,'moldureraForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+        return render(request,'moldureraForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas,'nuevo_form':nuevo_form})
 
     else:
-        return render(request,'moldureraForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+        form_data = cache.get('form_data')
+        if form_data:
+            nuevo_form = moldureraForm(form_data)
+        return render(request,'moldureraForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas, 'form': form_data})
 
 class ReprocesoFormView(FormView):
     template_name = 'reprocesoForm.html'
