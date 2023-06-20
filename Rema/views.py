@@ -137,10 +137,10 @@ class EntradaASEFormView(FormView):
 def previsualizacionEASE(request):
     info_maquinas = Maquina.objects.all
     info_maderas = Maderas.objects.all
-    p = Proceso.objects.aggregate(Max('id_proceso')).get('id_proceso__max')
     if request.method == "POST":
         form = entradaAserraderoForm(request.POST or None)
         update_data = request.POST.copy()
+        p = Proceso.objects.aggregate(Max('id_proceso')).get('id_proceso__max')    
         idProceso = p+1
         update_data.update({'idproceso': idProceso,
                             'id_madera':'0',
@@ -180,10 +180,12 @@ def previsualizacionEASE(request):
             form_data['volumensalida'] = volumendSalida
             form_data['volumentotal'] = volumendSalida
 
-            return render(request, 'previsualEASE.html',{'form_data': form_data})
+            cache.delete('form_data')
+            return render(request, 'previsualEASE.html',{'form_data': form_data, 'form':nuevo_formVis})
     else:
-        form = entradaAserraderoForm()
-    return redirect('entradaAserraderoInfo')    
+        form_data = cache.get('form_data')
+        form = entradaAserraderoForm(form_data) if form_data else entradaAserraderoForm()
+    return render(request,'entradaAseForm.html',{'form':form,'maquinas':info_maquinas,'maderas':info_maderas})    
     
 
 def entradaAserraderoInfo(request):
@@ -191,7 +193,6 @@ def entradaAserraderoInfo(request):
     info_maderas = Maderas.objects.all
     p = Proceso.objects.aggregate(Max('id_proceso')).get('id_proceso__max')
     if request.method == "POST":
-        form = entradaAserraderoForm(request.POST or None)
         update_data = request.POST.copy()
         idProceso = p+1
         update_data.update({'idproceso': idProceso,
@@ -205,13 +206,13 @@ def entradaAserraderoInfo(request):
         piezas_salida = request.POST.get('piezassalida')
         if piezas_salida == '':
             messages.error(request, 'No se puede Ingresar si no se agregan todas las piezas')
-            return render(request,'entradaAseForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
+            return render(request,'entradaAseForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas,'nuevo_form':nuevo_form})
         if float(piezas_salida) < 0: 
             messages.error(request, 'Cantidad inválida de piezas (menor a cero)')
-            return render(request,'entradaAseForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
+            return render(request,'entradaAseForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas,'nuevo_form':nuevo_form})
         if request.POST.get('fecha') == '':    
             messages.error(request, 'Ingrese fecha correctamente')
-            return render(request,'entradaAseForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
+            return render(request,'entradaAseForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas,'nuevo_form':nuevo_form})
         if nuevo_form.is_valid():
             instance = nuevo_form.save(commit=False)
             instance.id_proceso = p+1
@@ -240,13 +241,16 @@ def entradaAserraderoInfo(request):
                 """,(instance.piezassalida, instance.codigo_madera))
             
             actualizarMadera()
+            cache.delete('form_data')
         else:
             messages.success(request,('Error al ingresar'))
-            return render(request,'entradaAseForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
-        return render(request,'entradaAseForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
+            return render(request,'entradaAseForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas,'nuevo_form':nuevo_form})
+        return render(request,'entradaAseForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas,'nuevo_form':nuevo_form})
     else:
-
-        return render(request,'entradaAseForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
+        form_data = cache.get('form_data')
+        if form_data:
+            nuevo_form = entradaAserraderoForm(form_data)
+        return render(request,'entradaAseForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas,'form':form_data})
 
 class AserraderoFormView(FormView):
     template_name = 'salidaAseForm.html'
@@ -314,13 +318,13 @@ def previsualizacion(request):
             form_data['volumensalida'] = volumen
             form_data['volumentotal'] = volumen
 
-
-            return render(request, 'previsualizacion.html', {'form_data': form_data})
+            cache.delete('form_data')
+            return render(request, 'previsualizacion.html', {'form_data': form_data, 'form':nuevo_formVis})
     else:
+        form_data = cache.get('form_data')
         form = aserraderoForm()
     
-    return redirect('aserraderoInfo') 
-
+    return render(request,'salidaAseForm.html',{'form':form,'maquinas':info_maquinas,'maderas':info_maderas}) 
 
 
 def aserraderoInfo(request):
@@ -328,7 +332,6 @@ def aserraderoInfo(request):
     info_maderas = Maderas.objects.all
     p = Proceso.objects.aggregate(Max('id_proceso')).get('id_proceso__max')
     if request.method == "POST":
-        form = aserraderoForm(request.POST or None)
         update_data = request.POST.copy()
         idProceso = p+1
         update_data.update({'id_proceso': idProceso,
@@ -342,14 +345,14 @@ def aserraderoInfo(request):
         piezas_salida = request.POST.get('piezassalida')
         if piezas_salida == '':
             messages.error(request, 'No se puede Ingresar si no se agregan todas las piezas')
-            return render(request,'salidaAseForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
+            return render(request,'salidaAseForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas,'nuevo_form':nuevo_form})
         if float(piezas_salida) < 0 :
             messages.error(request, 'Cantidad inválida de piezas (menor a cero)')
-            return render(request,'salidaAseForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
+            return render(request,'salidaAseForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas,'nuevo_form':nuevo_form})
         
         if request.POST.get('fecha') == '':
             messages.error(request, 'Ingrese la Fecha correctamente')
-            return render(request,'salidaAseForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
+            return render(request,'salidaAseForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas,'nuevo_form':nuevo_form})
 
         if nuevo_form.is_valid():
             instance = nuevo_form.save(commit=False)
@@ -384,7 +387,7 @@ def aserraderoInfo(request):
 
             if instance.piezassalida > cantidad_disponible:
                 messages.error(request, 'La cantidad de piezas ingresada es superior a la disponible')
-                return render(request,'salidaAseForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})            
+                return render(request,'salidaAseForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas, 'nuevo_form':nuevo_form})            
             instance.save()
             connection.cursor().execute("""
             UPDATE "Maderas" SET "piezas" = "piezas" + %s WHERE "codigo_madera" = %s
@@ -393,13 +396,17 @@ def aserraderoInfo(request):
             UPDATE "Maderas" SET "piezas" = "piezas" - %s WHERE "codigo_madera" = %s
             """,(instance.piezassalida, instance.codigo_madera_ant))
             actualizarMadera()
+            cache.delete('form_data')
         else:
             messages.success(request,('Error al ingresar'))
-            return render(request,'salidaAseForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
-        return render(request,'salidaAseForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
+            return render(request,'salidaAseForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas,'nuevo_form':nuevo_form})
+        return render(request,'salidaAseForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas,'nuevo_form':nuevo_form})
     
     else:
-        return render(request,'salidaAseForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
+        form_data = cache.get('form_data')
+        if form_data:
+            nuevo_form = aserraderoForm(form_data)
+        return render(request,'salidaAseForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas,'form':form_data})
 
 
 class SecadoFormView(FormView):
@@ -473,18 +480,18 @@ def previsualizacionSec(request):
             form_data['volumenentrada'] = volumenEntrada
             form_data['volumensalida'] = volumenSalida
             form_data['piezasentrada'] = piezas_entrada
-
-            return render(request,'previsualSec.html',{'form_data':form_data})
+            cache.delete('form_data')
+            return render(request,'previsualSec.html',{'form_data':form_data,'form':nuevo_formVis})
     else:
-        form = secadoForm()
-    return redirect('secadoInfo')    
+        form_data = cache.get('form_data')
+        form = secadoForm(form_data) if form_data else secadoForm()
+    return render(request,'secadoForm.html',{'form':form,'maquinas':info_maquinas,'maderas':info_maderas})    
 
 def secadoInfo(request):
     info_maquinas = Maquina.objects.all
     info_maderas = Maderas.objects.all
     p = Proceso.objects.aggregate(Max('id_proceso')).get('id_proceso__max')
     if request.method == "POST":
-        form = secadoForm(request.POST or None)
         update_data = request.POST.copy()
         idProceso = p+1
         update_data.update({'id_proceso': idProceso,
@@ -500,18 +507,18 @@ def secadoInfo(request):
         piezas_salida = request.POST.get('piezassalida')
 
         if piezas_entrada == '' or piezas_salida == '':
-                messages.error(request, 'No se puede Ingresar sin agregar todas las piezas')
-                return render(request,'secadoForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
+            messages.error(request, 'No se puede Ingresar sin agregar todas las piezas')
+            return render(request,'secadoForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas,'nuevo_form':nuevo_form})
         if float(piezas_salida) < 0 or float(piezas_entrada) < 0 :
             messages.error(request, 'Cantidad inválida de piezas (menor a cero)')
-            return render(request,'secadoForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
+            return render(request,'secadoForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas,'nuevo_form':nuevo_form})
         if float(piezas_salida) > float(piezas_entrada):
             messages.error(request,'Piezas salida no puede ser mayor a la entrada')
-            return render(request,'secadoForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
+            return render(request,'secadoForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas,'nuevo_form':nuevo_form})
         
         if request.POST.get('fecha') == '':    
             messages.error(request, 'Ingrese fecha correctamente')
-            return render(request,'secadoForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
+            return render(request,'secadoForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas,'nuevo_form':nuevo_form})
  
         if nuevo_form.is_valid():
             instance = nuevo_form.save(commit=False)
@@ -552,10 +559,10 @@ def secadoInfo(request):
 
             if instance.piezasentrada > cantidad_disponible:
                 messages.error(request, 'La cantidad de piezas ingresada es superior a la disponible')
-                return render(request,'secadoForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
+                return render(request,'secadoForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas,'nuevo_form':nuevo_form})
             if instance.piezasentrada > cantidad_disponibleCEP:
                 messages.error(request, 'La cantidad de piezas de CEP ingresada es superior a la disponible')
-                return render(request,'secadoForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})    
+                return render(request,'secadoForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas,'nuevo_form':nuevo_form})    
             instance.save()
             connection.cursor().execute("""
             UPDATE "Maderas" SET "piezas" = "piezas" + %s WHERE "codigo_madera" = %s
@@ -573,18 +580,19 @@ def secadoInfo(request):
                     """,(instance.piezasentrada, instance.codigo_madera_ant))
                 
             actualizarMadera()
-
+            cache.delete('form_data')
                 
         else:
             messages.success(request, ('Error al ingresar'))
-            return render(request,'secadoForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
+            return render(request,'secadoForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas,'nuevo_form':nuevo_form})
    
-        return render(request,'secadoForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
-    
-
+        return render(request,'secadoForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas,'nuevo_form':nuevo_form})
 
     else:
-        return render(request,'secadoForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
+        form_data = cache.get('form_data')
+        if form_data:
+            nuevo_form = secadoForm(form_data)
+        return render(request,'secadoForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas, 'form':form_data})
 
 class CepilladoFormView(FormView):
     template_name = 'cepilladoForm.html'
@@ -635,11 +643,10 @@ def previsualizacionCep(request):
         if suma_salida > float(piezas_entrada):
             messages.error(request,'Piezas salida y rechazos no pueden ser mayor a la entrada')
             return render(request,'cepilladoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
- 
-        
         if request.POST.get('fecha') == '':    
             messages.error(request, 'Ingrese fecha correctamente')
             return render(request,'cepilladoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+        
         if nuevo_formVis.is_valid():
             form_data = nuevo_formVis.cleaned_data
             piezas_entrada = float(request.POST.get('piezasentrada'))
@@ -676,10 +683,12 @@ def previsualizacionCep(request):
             form_data['volumenrechazodef'] = volumenRechazoDef
             form_data['volumenrechazoproc'] = volumenRechazoProc
 
-            return render(request,'previsualCep.html',{'form_data': form_data})
+            cache.delete('form_data')
+            return render(request,'previsualCep.html',{'form_data': form_data,'form':nuevo_formVis})
     else:
-        form = cepilladoForm()
-    return redirect('cepilladoInfo')
+        form_data = cache.get('form_data')
+        form = cepilladoForm(form_data) if form_data else cepilladoForm()
+    return render(request,'cepilladoForm.html',{'form':form,'inf_maquinas':info_maquinas,'inf_maderas':info_maderas})
 
 
 
@@ -688,7 +697,6 @@ def cepilladoInfo(request):
     info_maderas = Maderas.objects.all
     p = Proceso.objects.aggregate(Max('id_proceso')).get('id_proceso__max')
     if request.method == "POST":
-        form = cepilladoForm(request.POST or None)
         update_data = request.POST.copy()
 
         idProceso = p+1
@@ -713,17 +721,17 @@ def cepilladoInfo(request):
         suma_salida = float(piezas_salida) + float(piezas_rechazodef) + float(piezas_rechazohum) + float(piezas_rechazoproc)
         if piezas_entrada == '' or piezas_salida == '' or piezas_rechazodef == '' or piezas_rechazohum == '' or piezas_rechazoproc == '':
                 messages.error(request, 'No se puede Ingresar si no se agregan todas las piezas')
-                return render(request,'cepilladoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+                return render(request,'cepilladoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas,'nuevo_form':nuevo_form})
         if suma_salida > float(piezas_entrada):
             messages.error(request, 'Suma de piezas salida más rechazos no puede ser superior a entrada')
-            return render(request,'cepilladoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+            return render(request,'cepilladoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas,'nuevo_form':nuevo_form})
         
         if float(piezas_salida) < 0 or float(piezas_entrada) < 0 or float(piezas_rechazodef) < 0 or float(piezas_rechazohum) < 0 or float(piezas_rechazoproc) < 0 :
             messages.error(request, 'Cantidad inválida de piezas (menor a cero)')
-            return render(request,'cepilladoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+            return render(request,'cepilladoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas,'nuevo_form':nuevo_form})
         if request.POST.get('fecha') == '':    
             messages.error(request, 'Ingrese fecha correctamente')
-            return render(request,'cepilladoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+            return render(request,'cepilladoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas,'nuevo_form':nuevo_form})
         
 
         if nuevo_form.is_valid():
@@ -772,7 +780,7 @@ def cepilladoInfo(request):
             
             if instance.piezasentrada > cantidad_disponible:
                 messages.error(request, 'La cantidad de piezas ingresada es superior a la disponible')
-                return render(request,'cepilladoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+                return render(request,'cepilladoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas,'nuevo_form':nuevo_form})
 
             instance.save()
             connection.cursor().execute("""
@@ -785,17 +793,19 @@ def cepilladoInfo(request):
                 UPDATE "Maderas" SET "reproceso" = "reproceso" + %s WHERE "codigo_madera" = %s
                 """,(instance.piezasrechazohum, instance.codigo_madera)) 
 
-            
-
             actualizarMadera() 
+            cache.delete('form_data')
         else:
             messages.success(request, ('Error al ingresar'))
-            return render(request,'cepilladoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+            return render(request,'cepilladoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas,'nuevo_form':nuevo_form})
                
-        return render(request,'cepilladoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+        return render(request,'cepilladoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas,'nuevo_form':nuevo_form})
 
     else:
-        return render(request,'cepilladoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+        form_data = cache.get('form_data')
+        if form_data:
+            nuevo_form = cepilladoForm(form_data)
+        return render(request,'cepilladoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas,'form':form_data})
 
 class TrozadoFormView(FormView):
     template_name = 'trozadoForm.html'
@@ -869,10 +879,12 @@ def previsualizacionTRZ(request):
             form_data['volumensalida'] = volumenSalida
             form_data['volumentotal'] = volumenSalida
 
-            return render(request,'previsualTRZ.html',{'form_data':form_data})
+            cache.delete('form_data')
+            return render(request,'previsualTRZ.html',{'form_data':form_data,'form':nuevo_formVis})
     else:
-        form = trozadoForm()
-    return redirect('trozadoInfo')
+        form_data = cache.get('form_data')
+        form = trozadoForm(form_data) if form_data else trozadoForm()
+    return render(request,'trozadoForm.html',{'form':form,'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
 
 
 
@@ -881,7 +893,6 @@ def trozadoInfo(request):
     info_maderas = Maderas.objects.all
     p = Proceso.objects.aggregate(Max('id_proceso')).get('id_proceso__max')
     if request.method == "POST":
-        form = trozadoForm(request.POST or None)
         update_data = request.POST.copy()
         idProceso = p+1
         update_data.update({'id_proceso': idProceso,
@@ -897,17 +908,17 @@ def trozadoInfo(request):
         piezas_salida = request.POST.get('piezassalida')
         if piezas_entrada == '' or piezas_salida == '':
             messages.error(request, 'No se puede Ingresar si no se agregan todas las piezas')
-            return render(request,'trozadoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+            return render(request,'trozadoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas, 'nuevo_form':nuevo_form})
         if float(piezas_salida) < 0 or float(piezas_entrada) < 0 :
             messages.error(request, 'Cantidad inválida de piezas (menor a cero)')
-            return render(request,'trozadoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+            return render(request,'trozadoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas, 'nuevo_form':nuevo_form})
         if float(piezas_salida) > float(piezas_entrada):
             messages.error(request, 'Piezas salida no puede ser superior a entrada')
-            return render(request,'trozadoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+            return render(request,'trozadoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas,'nuevo_form':nuevo_form})
 
         if request.POST.get('fecha') == '':    
             messages.error(request, 'Ingrese fecha correctamente')
-            return render(request,'trozadoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+            return render(request,'trozadoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas,'nuevo_form':nuevo_form})
           
         if nuevo_form.is_valid():
             instance = nuevo_form.save(commit=False)
@@ -958,18 +969,20 @@ def trozadoInfo(request):
             connection.cursor().execute("""
             UPDATE "Maderas" SET "piezas" = "piezas" - %s WHERE "codigo_madera" = %s
             """,(instance.piezasentrada,instance.codigo_madera_ant))
-            
-            
 
             actualizarMadera() 
+            cache.delete('form_data')
         else:
             messages.success(request, ('Error al ingresar'))
-            return render(request,'trozadoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+            return render(request,'trozadoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas,'nuevo_form':nuevo_form})
 
-        return render(request,'trozadoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+        return render(request,'trozadoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas,'nuevo_form':nuevo_form})
 
     else:
-        return render(request,'trozadoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+        form_data = cache.get('form_data')
+        if form_data:
+            nuevo_form = trozadoForm(form_data)
+        return render(request,'trozadoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas,'form':form_data})
 
 
 class FingerFormView(FormView):
@@ -1050,10 +1063,12 @@ def previsualizacionFNG(request):
             form_data['piezasentrada'] = piezas_entrada
             form_data['volumentotal'] = volumenCalidad + volumenReproceso
 
-            return render(request,'previsualFNG.html',{'form_data':form_data})
+            cache.delete('form_delete')
+            return render(request,'previsualFNG.html',{'form_data':form_data,'form':nuevo_formVis})
     else:
-        form = fingerForm()
-    return redirect('fingerInfo')              
+        form_data = cache.get('form_data')
+        form = fingerForm(form_data) if form_data else fingerForm()
+    return render(request,'fingerForm.html',{'form': form, 'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})              
 
 def fingerInfo(request):
     info_maquinas = Maquina.objects.all
@@ -1080,17 +1095,17 @@ def fingerInfo(request):
         suma_salida = float(piezas_calidad) + float(piezas_reproceso)
         if piezas_entrada == '' or piezas_calidad == '' or piezas_reproceso == '':
             messages.error(request, 'No se puede Ingresar si no se agregan todas las piezas')
-            return render(request,'fingerForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+            return render(request,'fingerForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas,'nuevo_form':nuevo_form})
         if float(piezas_entrada) < 0 or float(piezas_calidad) < 0 or float(piezas_reproceso) < 0 :
             messages.error(request, 'Cantidad inválida de piezas (menor a cero)')
-            return render(request,'fingerForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+            return render(request,'fingerForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas,'nuevo_form':nuevo_form})
         if suma_salida > float(piezas_entrada):
             messages.error(request, 'Piezas calidad mas reproceso no puede ser superior a entrada')
-            return render(request,'fingerForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+            return render(request,'fingerForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas,'nuevo_form':nuevo_form})
         
         if request.POST.get('fecha') == '':    
             messages.error(request, 'Ingrese fecha correctamente')
-            return render(request,'fingerForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+            return render(request,'fingerForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas,'nuevo_form':nuevo_form})
         
         if nuevo_form.is_valid():
             instance = nuevo_form.save(commit=False)
@@ -1130,7 +1145,7 @@ def fingerInfo(request):
 
             if instance.piezasentrada > cantidad_disponible:
                     messages.error(request, 'La cantidad de piezas ingresada es superior a la disponible')
-                    return render(request,'fingerForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+                    return render(request,'fingerForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas,'nuevo_form':nuevo_form})
             instance.save()
 
             connection.cursor().execute("""
@@ -1145,14 +1160,18 @@ def fingerInfo(request):
                 """,(instance.piezasreproceso, instance.codigo_madera)) 
 
             actualizarMadera() 
+            cache.delete('form_data')
         else:
             messages.success(request, ('Error al ingresar'))
-            return render(request,'fingerForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+            return render(request,'fingerForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas,'nuevo_form':nuevo_form})
    
-        return render(request,'fingerForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+        return render(request,'fingerForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas,'nuevo_form':nuevo_form})
 
     else:
-        return render(request,'fingerForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+        form_data = cache.get('form_data')
+        if form_data:
+            nuevo_form = fingerForm(form_data)
+        return render(request,'fingerForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas,'form':form_data})
 
 class MoldureraFormView(FormView):
     template_name = 'moldureraForm.html'
@@ -1410,11 +1429,12 @@ def previsualizacionRPR(request):
             volumenSalida = calcularVolumen(codigo_madera,piezas_salida)
             form_data['volumensalida'] = volumenSalida
             form_data['volumentotal'] = volumenSalida
-
-            return render(request,'previsualRPR.html',{'form_data':form_data})
+            cache.delete('form_data')
+            return render(request,'previsualRPR.html',{'form_data':form_data,'form':nuevo_formVis})
     else:
-        form = reprocesoForm()
-    return redirect('reprocesoInfo')        
+        form_data = cache.get('form_data')
+        form = reprocesoForm(form_data) if form_data else reprocesoForm()
+    return render(request,'reprocesoForm.html',{'form':form,'inf_maquinas': info_maquinas,'inf_maderas':info_maderas})        
 
 
 
@@ -1423,7 +1443,6 @@ def reprocesoInfo(request):
     info_maderas = Maderas.objects.all
     p = Proceso.objects.aggregate(Max('id_proceso')).get('id_proceso__max')
     if request.method == "POST":
-        form = reprocesoForm(request.POST or None)
         update_data = request.POST.copy()
         idProceso = p+1
         update_data.update({'id_proceso': idProceso,
@@ -1437,13 +1456,13 @@ def reprocesoInfo(request):
         piezas_salida = request.POST.get('piezassalida')
         if piezas_salida == '':
             messages.error(request, 'No se puede Ingresar si no se agregan todas las piezas')
-            return render(request,'reprocesoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+            return render(request,'reprocesoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas,'nuevo_form':nuevo_form})
         if float(piezas_salida) < 0 :
             messages.error(request, 'Cantidad inválida de piezas (menor a cero)')
-            return render(request,'reprocesoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+            return render(request,'reprocesoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas,'nuevo_form':nuevo_form})
         if request.POST.get('fecha') == '':    
             messages.error(request, 'Ingrese fecha correctamente')
-            return render(request,'reprocesoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+            return render(request,'reprocesoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas,'nuevo_form':nuevo_form})
         
         if nuevo_form.is_valid():
             instance = nuevo_form.save(commit=False)
@@ -1478,7 +1497,7 @@ def reprocesoInfo(request):
 
             if instance.piezassalida > cantidad_disponible:
                     messages.error(request, 'La cantidad de piezas ingresada es superior a la disponible')
-                    return render(request,'reprocesoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+                    return render(request,'reprocesoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas,'nuevo_form':nuevo_form})
             instance.save()
             connection.cursor().execute("""
             UPDATE "Maderas" SET "piezas" = "piezas" + %s WHERE "codigo_madera" = %s
@@ -1487,11 +1506,15 @@ def reprocesoInfo(request):
             UPDATE "Maderas" SET "reproceso" = "reproceso" - %s WHERE "codigo_madera" = %s
             """,(instance.piezassalida, instance.codigo_madera_ant))
             actualizarMadera()
+            cache.delete('form_data')
         else:
             messages.success(request,('Error al ingresar'))
-            return render(request,'reprocesoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas}) 
-        return render(request,'reprocesoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+            return render(request,'reprocesoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas,'nuevo_form':nuevo_form}) 
+        return render(request,'reprocesoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas,'nuevo_form':nuevo_form})
     else:
-        return render(request,'reprocesoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
+        form_data = cache.get('form_data')
+        if form_data:
+            nuevo_form = reprocesoForm(form_data)
+        return render(request,'reprocesoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas,'form':form_data})
 
     
