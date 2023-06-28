@@ -36,6 +36,18 @@ SET "volumenTotal" = "volumenxPieza"*"piezas"
         cursor.execute("""
         UPDATE "Maderas" SET "volumenreproceso" = "volumenxPieza" * "reproceso"
         """)
+        cursor.execute("""
+        UPDATE "Maderas" SET "volumen_trz-a" = "volumenxPieza" * "piezas_trz-a"
+        """)
+        cursor.execute("""
+        UPDATE "Maderas" SET "volumen_trz-b" = "volumenxPieza" * "piezas_trz-b"
+        """)
+        cursor.execute("""
+        UPDATE "Maderas" SET "volumen_trz-c" = "volumenxPieza" * "piezas_trz-c"
+        """)
+        cursor.execute("""
+        UPDATE "Maderas" SET "volumen_trz-d" = "volumenxPieza" * "piezas_trz-d"
+        """)
 
 
 def nuevoCodigo(request):
@@ -98,6 +110,19 @@ def nuevoCodigo(request):
             UPDATE "Maderas" SET "reproceso" = 0 WHERE "codigo_madera" = %s
             """,(instance.codigo_madera,))
 
+            connection.cursor().execute("""
+            UPDATE "Maderas" SET "piezas_trz-a" = 0 WHERE "codigo_madera" = %s
+            """,(instance.codigo_madera,))
+            connection.cursor().execute("""
+            UPDATE "Maderas" SET "piezas_trz-b" = 0 WHERE "codigo_madera" = %s
+            """,(instance.codigo_madera,))
+            connection.cursor().execute("""
+            UPDATE "Maderas" SET "piezas_trz-c" = 0 WHERE "codigo_madera" = %s
+            """,(instance.codigo_madera,))
+            connection.cursor().execute("""
+            UPDATE "Maderas" SET "piezas_trz-d" = 0 WHERE "codigo_madera" = %s
+            """,(instance.codigo_madera,))
+
                 
             instance.save()
             actualizarMadera()
@@ -118,7 +143,7 @@ def calcularVolumenEASE(codigo_de_madera, piezas_recibidas):
 
 def calcularVolumen(codigo_de_madera, piezas_recibidas):
     madera = Maderas.objects.get(codigo_madera = codigo_de_madera)
-    volumen = (madera.espesor * madera.ancho * madera.largo * piezas_recibidas) / 1000000    
+    volumen = ((madera.espesor)* (madera.ancho) * (madera.largo) * int(piezas_recibidas)) / 1000000    
     return volumen
 
 class EntradaASEFormView(FormView):
@@ -690,8 +715,6 @@ def previsualizacionCep(request):
         form = cepilladoForm(form_data) if form_data else cepilladoForm()
     return render(request,'cepilladoForm.html',{'form':form,'inf_maquinas':info_maquinas,'inf_maderas':info_maderas})
 
-
-
 def cepilladoInfo(request):
     info_maquinas = Maquina.objects.all
     info_maderas = Maderas.objects.all
@@ -835,20 +858,32 @@ def previsualizacionTRZ(request):
                             'id_maquina': '0',
                             'volumenentrada': '0',
                             'volumensalida': '0',
-                            'volumentotal':'0'})
+                            'volumentotal':'0',
+                            'volumen_trz_a':'0',
+                            'volumen_trz_b':'0',
+                            'volumen_trz_c':'0',
+                            'volumen_trz_d':'0',
+                            'piezassalida':'0'})
         nuevo_formVis = trozadoForm(update_data)
         piezas_entrada = request.POST.get('piezasentrada')
-        piezas_salida = request.POST.get('piezassalida')
-        if piezas_entrada == '' or piezas_salida == '':
+        #piezas_salida = request.POST.get('piezassalida')
+        piezas_cat_a = request.POST.get('piezas_trz_a')
+        piezas_cat_b = request.POST.get('piezas_trz_b')
+        piezas_cat_c = request.POST.get('piezas_trz_c')
+        piezas_cat_d = request.POST.get('piezas_trz_d')
+        sumaCategorias = float(piezas_cat_a)+float(piezas_cat_b)+float(piezas_cat_c)+float(piezas_cat_d)
+        if piezas_entrada == '' or piezas_cat_a == '' or piezas_cat_b=='' or piezas_cat_c == '' or piezas_cat_d=='':
             messages.error(request, 'No se puede previsualizar si no se agregan todas las piezas')
             return render(request,'trozadoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
-        if float(piezas_salida) < 0 or float(piezas_entrada) < 0 :
+        if float(piezas_cat_a) < 0 or float(piezas_cat_b) < 0 or float(piezas_cat_c) < 0 or float(piezas_cat_d) < 0 or float(piezas_entrada) < 0 :
             messages.error(request, 'Cantidad inválida de piezas (menor a cero)')
             return render(request,'trozadoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
-        if float(piezas_salida) > float(piezas_entrada):
-            messages.error(request, 'Piezas salida no puede ser superior a entrada')
+        if sumaCategorias > float(piezas_entrada):
+            messages.error(request, 'Suma de las categorias no puede ser superior a entrada')
             return render(request,'trozadoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
-
+        #if float(piezas_salida) > float(piezas_entrada):
+         #   messages.error(request, 'Piezas Salida no puede ser superior a entrada')
+          #  return render(request,'trozadoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
         if request.POST.get('fecha') == '':    
             messages.error(request, 'Ingrese fecha correctamente')
             return render(request,'trozadoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
@@ -856,7 +891,11 @@ def previsualizacionTRZ(request):
         if nuevo_formVis.is_valid():
             form_data = nuevo_formVis.cleaned_data
             piezas_entrada = float(request.POST.get('piezasentrada'))
-            piezas_salida = float(request.POST.get('piezassalida'))
+            #piezas_salida = float(request.POST.get('piezassalida'))
+            piezas_cat_a = request.POST.get('piezas_trz_a')
+            piezas_cat_b = request.POST.get('piezas_trz_b')
+            piezas_cat_c = request.POST.get('piezas_trz_c')
+            piezas_cat_d = request.POST.get('piezas_trz_d')
             codigo_madera = request.POST.get('codigo_madera')
             id_madera = None
             id_maquina = None
@@ -874,11 +913,22 @@ def previsualizacionTRZ(request):
             form_data['id_area'] = 1
             form_data['id_centrotrabajo'] = 5 
             volumenEntrada = calcularVolumen(codigo_madera,piezas_entrada)
-            volumenSalida = calcularVolumen(codigo_madera,piezas_salida)
+            volumenSalida = calcularVolumen(codigo_madera,sumaCategorias)
             form_data['volumenentrada'] = volumenEntrada
             form_data['volumensalida'] = volumenSalida
             form_data['volumentotal'] = volumenSalida
+            form_data['volumen_trz_a'] = calcularVolumen(codigo_madera,piezas_cat_a)
+            form_data['volumen_trz_b'] = calcularVolumen(codigo_madera,piezas_cat_b)
+            form_data['volumen_trz_c'] = calcularVolumen(codigo_madera,piezas_cat_c)
+            form_data['volumen_trz_d'] = calcularVolumen(codigo_madera,piezas_cat_d)
+            form_data['piezassalida'] = int(sumaCategorias)
+            form_data['piezas_trz_a'] = int(piezas_cat_a)
+            form_data['piezas_trz_b'] = int(piezas_cat_b)
+            form_data['piezas_trz_c'] = int(piezas_cat_c)
+            form_data['piezas_trz_d'] = int(piezas_cat_d)
 
+
+            print(form_data)
             cache.delete('form_data')
             return render(request,'previsualTRZ.html',{'form_data':form_data,'form':nuevo_formVis})
     else:
@@ -902,18 +952,29 @@ def trozadoInfo(request):
                             'id_maquina': '0',
                             'volumenentrada': '0',
                             'volumensalida': '0',
-                            'volumentotal':'0',})
+                            'volumentotal':'0',
+                            'volumen_trz_a':'0',
+                            'volumen_trz_b':'0',
+                            'volumen_trz_c':'0',
+                            'volumen_trz_d':'0',
+                            'piezassalida':'0'})
         nuevo_form = trozadoForm(update_data)
         piezas_entrada = request.POST.get('piezasentrada')
-        piezas_salida = request.POST.get('piezassalida')
-        if piezas_entrada == '' or piezas_salida == '':
+        #piezas_salida = request.POST.get('piezassalida')
+        piezas_cat_a = request.POST.get('piezas_trz_a')
+        piezas_cat_b = request.POST.get('piezas_trz_b')
+        piezas_cat_c = request.POST.get('piezas_trz_c')
+        piezas_cat_d = request.POST.get('piezas_trz_d')
+        sumaCategorias = float(piezas_cat_a)+float(piezas_cat_b)+float(piezas_cat_c)+float(piezas_cat_d)
+
+        if piezas_entrada == '' or piezas_cat_a == '' or piezas_cat_b == '' or piezas_cat_c == '' or piezas_cat_d == '':
             messages.error(request, 'No se puede Ingresar si no se agregan todas las piezas')
             return render(request,'trozadoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas, 'nuevo_form':nuevo_form})
-        if float(piezas_salida) < 0 or float(piezas_entrada) < 0 :
+        if float(piezas_cat_a) < 0 or float(piezas_cat_b) < 0 or float(piezas_cat_c) < 0 or float(piezas_cat_d) < 0 or float(piezas_entrada) < 0 :
             messages.error(request, 'Cantidad inválida de piezas (menor a cero)')
             return render(request,'trozadoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas, 'nuevo_form':nuevo_form})
-        if float(piezas_salida) > float(piezas_entrada):
-            messages.error(request, 'Piezas salida no puede ser superior a entrada')
+        if sumaCategorias > float(piezas_entrada):
+            messages.error(request, 'Suma de las categorias no puede ser superior a entrada')
             return render(request,'trozadoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas,'nuevo_form':nuevo_form})
 
         if request.POST.get('fecha') == '':    
@@ -938,10 +999,21 @@ def trozadoInfo(request):
 
                 if(instance.piezasentrada != None):    
                     instance.volumenentrada = ((i.espesor * i.ancho * i.largo) * instance.piezasentrada) / 1000000
-                if(instance.piezassalida != None):
-                    instance.volumensalida = ((i.espesor * i.ancho * i.largo) * instance.piezassalida) / 1000000
 
-                instance.volumentotal = instance.volumensalida
+            instance.volumensalida = calcularVolumen(instance.codigo_madera, sumaCategorias)
+            instance.volumentotal = instance.volumensalida
+
+            instance.volumen_trz_a = calcularVolumen(instance.codigo_madera,int(piezas_cat_a))
+            instance.volumen_trz_b = calcularVolumen(instance.codigo_madera,int(piezas_cat_b))
+            instance.volumen_trz_c = calcularVolumen(instance.codigo_madera,int(piezas_cat_c))
+            instance.volumen_trz_d = calcularVolumen(instance.codigo_madera,int(piezas_cat_d))
+
+            instance.piezas_trz_a = int(piezas_cat_a)
+            instance.piezas_trz_b = int(piezas_cat_b)
+            instance.piezas_trz_c = int(piezas_cat_c)
+            instance.piezas_trz_d = int(piezas_cat_d)
+
+            instance.piezassalida = sumaCategorias
                 
 
             instance.id_area = 1
@@ -960,11 +1032,25 @@ def trozadoInfo(request):
                 messages.error(request, 'La cantidad de piezas ingresada es superior a la disponible')
                 return render(request,'trozadoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
 
+
+
             instance.save()
 
             connection.cursor().execute("""
             UPDATE "Maderas" SET "piezas" = "piezas" + %s WHERE "codigo_madera" = %s
             """,(instance.piezassalida, instance.codigo_madera))
+            connection.cursor().execute("""
+            UPDATE "Maderas" SET "piezas_trz-a" = "piezas_trz-a" + %s WHERE "codigo_madera" = %s
+            """,(instance.piezas_trz_a, instance.codigo_madera))
+            connection.cursor().execute("""
+            UPDATE "Maderas" SET "piezas_trz-b" = "piezas_trz-b" + %s WHERE "codigo_madera" = %s
+            """,(instance.piezas_trz_b, instance.codigo_madera))
+            connection.cursor().execute("""
+            UPDATE "Maderas" SET "piezas_trz-c" = "piezas_trz-c" + %s WHERE "codigo_madera" = %s
+            """,(instance.piezas_trz_c, instance.codigo_madera))
+            connection.cursor().execute("""
+            UPDATE "Maderas" SET "piezas_trz-d" = "piezas_trz-d" + %s WHERE "codigo_madera" = %s
+            """,(instance.piezas_trz_d, instance.codigo_madera))
 
             connection.cursor().execute("""
             UPDATE "Maderas" SET "piezas" = "piezas" - %s WHERE "codigo_madera" = %s
@@ -1062,7 +1148,7 @@ def previsualizacionFNG(request):
             form_data['volumenreproceso'] = volumenReproceso
             form_data['piezasentrada'] = piezas_entrada
             form_data['volumentotal'] = volumenCalidad + volumenReproceso
-
+            form_data['categoria_trz'] = 'A'
             cache.delete('form_delete')
             return render(request,'previsualFNG.html',{'form_data':form_data,'form':nuevo_formVis})
     else:
@@ -1133,6 +1219,7 @@ def fingerInfo(request):
 
             instance.id_area = 1
             instance.id_centrotrabajo = 6
+            instance.categoria_trz = 'A'
             for i in Maquina.objects.raw(
                 """
                 SELECT "id_maquina","nombreMaquina" FROM "Maquina"
@@ -1163,15 +1250,15 @@ def fingerInfo(request):
             cache.delete('form_data')
         else:
             messages.success(request, ('Error al ingresar'))
-            return render(request,'fingerForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas,'nuevo_form':nuevo_form})
+            return render(request,'fingerForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
    
-        return render(request,'fingerForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas,'nuevo_form':nuevo_form})
+        return render(request,'fingerForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
 
     else:
         form_data = cache.get('form_data')
         if form_data:
             nuevo_form = fingerForm(form_data)
-        return render(request,'fingerForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas,'form':form_data})
+        return render(request,'fingerForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
 
 class MoldureraFormView(FormView):
     template_name = 'moldureraForm.html'
