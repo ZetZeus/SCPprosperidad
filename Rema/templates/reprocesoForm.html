@@ -145,6 +145,11 @@
                                     <option value={{item.codigo_madera}}> {{item.codigo_madera}} </option>
                                 {% endif %}    
                             {% endif %}
+                            {% if item.id_centrotrabajo == 5 %}
+                                {% if item.piezas_trzb > 0 or item.piezas_trc > 0 %}
+                                    <option value={{item.codigo_madera}}> {{item.codigo_madera}} </option>
+                                {% endif %}    
+                            {% endif %}
                         {% endfor %}
                     </select>
                 </div>
@@ -162,6 +167,14 @@
             </div>
 
             <div class="form-row">
+                <div class="form-group">
+                    <label for="categoria_trz">Categoría TRZ</label>
+                    <select name="categoria_trz" id="categoria_trz" class="form-control">
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="C">C</option>
+                    </select>
+                </div>
                 <div class="form-group">
                     <label for = "piezassalida">Piezas </label>
                     <input id ="piezassalida" type='number' name="piezassalida" class="form-control"></input>

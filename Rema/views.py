@@ -1199,6 +1199,7 @@ def fingerInfo(request):
 
             madera_anterior = Maderas.objects.get(codigo_madera = instance.codigo_madera_ant)
             cantidad_disponible = madera_anterior.piezas
+            cantidad_trz_disp = madera_anterior.piezas_trza
             for i in Maderas.objects.raw(
                 """
                 SELECT "id_madera", "codigo_madera", "espesor","ancho","largo" FROM "Maderas"
@@ -1230,14 +1231,21 @@ def fingerInfo(request):
                     instance.nombre_centrotrabajo = i.centrotrabajomaquina
                     instance.id_maquina = i.id_maquina
 
+            if madera_anterior.id_centrotrabajo == 5:
+                if instance.piezasentrada > cantidad_trz_disp:
+                    messages.error(request, 'La cantidad de piezas ingresada es superior a la disponible')
+                    return render(request,'fingerForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas,'nuevo_form':nuevo_form})
+            
             if instance.piezasentrada > cantidad_disponible:
                     messages.error(request, 'La cantidad de piezas ingresada es superior a la disponible')
                     return render(request,'fingerForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas,'nuevo_form':nuevo_form})
             instance.save()
-
             connection.cursor().execute("""
                 UPDATE "Maderas" SET "piezas" = "piezas" + %s WHERE "codigo_madera" = %s
                 """,(instance.piezascalidad, instance.codigo_madera)) 
+            connection.cursor().execute("""
+            UPDATE "Maderas" SET "piezas_trz-a" = "piezas_trz-a" - %s WHERE "codigo_madera" = %s
+            """,(instance.piezasentrada,instance.codigo_madera_ant))
             connection.cursor().execute("""
             UPDATE "Maderas" SET "piezas" = "piezas" - %s WHERE "codigo_madera" = %s
             """,(instance.piezasentrada,instance.codigo_madera_ant))
@@ -1499,6 +1507,7 @@ def previsualizacionRPR(request):
             codigo_madera = request.POST.get('codigo_madera')
             id_madera = None
             id_maquina = None
+            categoria_trz = request.POST.get('categoria_trz')
             for i in Maderas.objects.raw("""SELECT "id_madera", "codigo_madera" FROM "Maderas" WHERE "id_centroTrabajo" = 7"""):
                 if i.codigo_madera == codigo_madera:
                     id_madera = i.id_madera
@@ -1516,6 +1525,7 @@ def previsualizacionRPR(request):
             volumenSalida = calcularVolumen(codigo_madera,piezas_salida)
             form_data['volumensalida'] = volumenSalida
             form_data['volumentotal'] = volumenSalida
+            form_data['categoria_trz'] = categoria_trz
             cache.delete('form_data')
             return render(request,'previsualRPR.html',{'form_data':form_data,'form':nuevo_formVis})
     else:
@@ -1557,6 +1567,9 @@ def reprocesoInfo(request):
 
             madera_anterior = Maderas.objects.get(codigo_madera = instance.codigo_madera_ant)
             cantidad_disponible = madera_anterior.reproceso
+            cantidad_disponibleTRZB = madera_anterior.piezas_trzb
+            cantidad_disponibleTRZC = madera_anterior.piezas_trzc
+            categoria_trz = request.POST.get('categoria_trz')
             for i in Maderas.objects.raw(
                 """
                 SELECT "id_madera", "codigo_madera", "espesor","ancho","largo" FROM "Maderas"
@@ -1581,14 +1594,38 @@ def reprocesoInfo(request):
                 if (i.nombremaquina == instance.nombre_maquina):
                     instance.nombre_centrotrabajo = i.centrotrabajomaquina
                     instance.id_maquina = i.id_maquina
-
-            if instance.piezassalida > cantidad_disponible:
+            instance.categoria_trz = categoria_trz
+            
+            if instance.categoria_trz == 'B':
+                instance.piezas_trz_b = instance.piezassalida
+                if instance.piezassalida > cantidad_disponibleTRZB:
                     messages.error(request, 'La cantidad de piezas ingresada es superior a la disponible')
                     return render(request,'reprocesoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas,'nuevo_form':nuevo_form})
+                connection.cursor().execute("""
+                UPDATE "Maderas" SET "piezas_trz-b" = "piezas_trz-b" - %s WHERE "codigo_madera" = %s 
+                """,(instance.piezas_trz_b, instance.codigo_madera_ant))
+            elif instance.categoria_trz == 'C': 
+                instance.piezas_trz_c = instance.piezassalida
+                if instance.piezassalida > cantidad_disponibleTRZC:
+                    messages.error(request, 'La cantidad de piezas ingresada es superior a la disponible')
+                    return render(request,'reprocesoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas,'nuevo_form':nuevo_form})
+                connection.cursor().execute("""
+                UPDATE "Maderas" SET "piezas_trz-c" = "piezas_trz-c" - %s WHERE "codigo_madera" = %s 
+                """,(instance.piezassalida, instance.codigo_madera_ant)) 
+            
+        elif instance.categoria_trz == 'A':
+            if instance.piezassalida > cantidad_disponible:
+                messages.error(request, 'La cantidad de piezas ingresada es superior a la disponible')
+                return render(request,'reprocesoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas,'nuevo_form':nuevo_form})
+            connection.cursor().execute("""
+            UPDATE "Maderas" SET "reproceso" = "reproceso" - %s WHERE "codigo_madera" = %s
+            """,(instance.piezassalida, instance.codigo_madera_ant))
             instance.save()
             connection.cursor().execute("""
             UPDATE "Maderas" SET "piezas" = "piezas" + %s WHERE "codigo_madera" = %s
             """,(instance.piezassalida, instance.codigo_madera))
+                
+               
             connection.cursor().execute("""
             UPDATE "Maderas" SET "reproceso" = "reproceso" - %s WHERE "codigo_madera" = %s
             """,(instance.piezassalida, instance.codigo_madera_ant))
