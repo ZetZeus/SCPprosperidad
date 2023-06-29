@@ -1056,6 +1056,10 @@ def trozadoInfo(request):
             UPDATE "Maderas" SET "piezas" = "piezas" - %s WHERE "codigo_madera" = %s
             """,(instance.piezasentrada,instance.codigo_madera_ant))
 
+            connection.cursor().execute("""
+            UPDATE "Maderas" SET "reproceso" = "reproceso" + %s + %s WHERE "codigo_madera" = %s
+            """,(instance.piezas_trz_b,instance.piezas_trz_c,instance.codigo_madera))
+
             actualizarMadera() 
             cache.delete('form_data')
         else:
