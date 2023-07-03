@@ -157,14 +157,15 @@
                     <select id="codigo_madera_ant" name="codigo_madera_ant" class="form-control">
                         {% for item in inf_maderas %}
                             {% if item.id_centrotrabajo == 6 %}
-                                {% if item.piezas > 0 %}
+                                {% if item.reproceso > 0 %}
                                     <option value={{item.codigo_madera}}> {{item.codigo_madera}} </option>
                                 {% endif %}    
                             {% endif %}
                             {% if item.id_centrotrabajo == 5 %}
-                                {% if item.piezas_trzb > 0 or item.piezas_trc > 0 %}
+                                {% if item.piezas_trzb > 0 or item.piezas_trzc > 0 %}
                                     <option value={{item.codigo_madera}}> {{item.codigo_madera}} </option>
-                                {% endif %}    
+                                {% endif %}
+                                    
                             {% endif %}
                         {% endfor %}
                     </select>

@@ -27,11 +27,14 @@ def actualizarMadera():
     with connection.cursor() as cursor:
         cursor.execute("""
         UPDATE "Maderas"
-SET "volumenxPieza" = ("espesor"*"ancho"*"largo")/1000000, "factor" = 1/"cantidadxPaquete", "paquetes" = "piezas"/"cantidadxPaquete"
-""")
+        SET "volumenxPieza" = ("espesor"*"ancho"*"largo")/1000000, "factor" = 1/"cantidadxPaquete", "paquetes" = "piezas"/"cantidadxPaquete"
+        """)
+        connection.cursor().execute("""
+            UPDATE "Maderas" SET "volumenxPieza" = ("diametro" * "diametro" * "largo") /10000 WHERE "codigo_madera" LIKE 'EASE%'
+            """)
         cursor.execute("""
         UPDATE "Maderas"
-SET "volumenTotal" = "volumenxPieza"*"piezas"
+        SET "volumenTotal" = "volumenxPieza"*"piezas"
         """)
         cursor.execute("""
         UPDATE "Maderas" SET "volumenreproceso" = "volumenxPieza" * "reproceso"
@@ -266,6 +269,7 @@ def entradaAserraderoInfo(request):
                 """,(instance.piezassalida, instance.codigo_madera))
             
             actualizarMadera()
+            
             cache.delete('form_data')
         else:
             messages.success(request,('Error al ingresar'))
@@ -305,15 +309,18 @@ def previsualizacion(request):
                             'id_area':'0',
                             'id_maquina': '0',
                             'volumensalida': '0',
+                            'volumenentrada': '0',
                             'volumentotal':'0'})
         nuevo_formVis = aserraderoForm(update_data)
+        piezas_entrada = request.POST.get('piezasentrada')
         piezas_salida = request.POST.get('piezassalida')
-        if piezas_salida == '':
+        if piezas_salida == '' or piezas_entrada == '':
             messages.error(request, 'No se puede previsualizar sin piezas ingresadas')
             return render(request,'salidaAseForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
-        if float(piezas_salida) < 0 :
+        if float(piezas_salida) < 0 or float(piezas_entrada) < 0:
             messages.error(request, 'Cantidad inválida de piezas (menor a cero)')
             return render(request,'salidaAseForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas})
+        
         
         if request.POST.get('fecha') == '':
             messages.error(request, 'Ingrese la Fecha correctamente')
@@ -322,8 +329,10 @@ def previsualizacion(request):
 
         if nuevo_formVis.is_valid():
             form_data = nuevo_formVis.cleaned_data
+            piezas_entrada = float(request.POST.get('piezasentrada'))
             piezas_salida = float(request.POST.get('piezassalida'))
             codigo_madera = request.POST.get('codigo_madera')
+            codigo_madera_ant = request.POST.get('codigo_madera_ant')
             id_madera = None
             id_maquina = None
             for i in Maderas.objects.raw("""SELECT "id_madera", "codigo_madera" FROM "Maderas" WHERE "id_centroTrabajo" = 2"""):
@@ -338,10 +347,14 @@ def previsualizacion(request):
             form_data['id_madera'] = id_madera
             form_data['id_maquina'] = id_maquina    
             form_data['id_area'] = 1
-            form_data['id_centrotrabajo'] = 2    
+            form_data['id_centrotrabajo'] = 2
+            form_data['piezasentrada'] = piezas_entrada
+            volumenEntrada = calcularVolumenEASE(codigo_madera_ant,piezas_entrada)    
             volumen = calcularVolumen(codigo_madera,piezas_salida)
             form_data['volumensalida'] = volumen
+            form_data['volumenentrada'] = volumenEntrada
             form_data['volumentotal'] = volumen
+            print(volumenEntrada)
 
             cache.delete('form_data')
             return render(request, 'previsualizacion.html', {'form_data': form_data, 'form':nuevo_formVis})
@@ -364,14 +377,16 @@ def aserraderoInfo(request):
                             'id_centrotrabajo':'0',
                             'id_area':'0',
                             'id_maquina': '0',
+                            'volumenentrada':'0',
                             'volumensalida': '0',
                             'volumentotal':'0'})
         nuevo_form = aserraderoForm(update_data)
+        piezas_entrada = request.POST.get('piezasentrada')
         piezas_salida = request.POST.get('piezassalida')
-        if piezas_salida == '':
+        if piezas_salida == '' or piezas_entrada == '':
             messages.error(request, 'No se puede Ingresar si no se agregan todas las piezas')
             return render(request,'salidaAseForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas,'nuevo_form':nuevo_form})
-        if float(piezas_salida) < 0 :
+        if float(piezas_salida) < 0 or float(piezas_entrada) < 0 :
             messages.error(request, 'Cantidad inválida de piezas (menor a cero)')
             return render(request,'salidaAseForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas,'nuevo_form':nuevo_form})
         
@@ -393,8 +408,14 @@ def aserraderoInfo(request):
             ):
                 if (i.codigo_madera == instance.codigo_madera):
                     instance.id_madera = i.id_madera
+            instance.piezasentrada = float(piezas_entrada)
+            print(type(instance.codigo_madera_ant),type(instance.piezasentrada))
+
+            print(instance.codigo_madera_ant, instance.piezasentrada)
             volumen = calcularVolumen(instance.codigo_madera,instance.piezassalida)
+            volumenEntrada = calcularVolumenEASE(instance.codigo_madera_ant,instance.piezasentrada)
             instance.volumensalida = volumen
+            instance.volumenentrada = volumenEntrada
             instance.volumentotal = volumen
 
             instance.id_area = 1
@@ -409,7 +430,7 @@ def aserraderoInfo(request):
                         instance.nombre_centrotrabajo = i.centrotrabajomaquina
                         instance.id_maquina = i.id_maquina
 
-            if instance.piezassalida > cantidad_disponible:
+            if instance.piezasentrada > cantidad_disponible:
                 messages.error(request, 'La cantidad de piezas ingresada es superior a la disponible')
                 return render(request,'salidaAseForm.html',{'maquinas': info_maquinas, 'maderas': info_maderas, 'nuevo_form':nuevo_form})            
             instance.save()
@@ -418,7 +439,7 @@ def aserraderoInfo(request):
             """,(instance.piezassalida, instance.codigo_madera))
             connection.cursor().execute("""
             UPDATE "Maderas" SET "piezas" = "piezas" - %s WHERE "codigo_madera" = %s
-            """,(instance.piezassalida, instance.codigo_madera_ant))
+            """,(instance.piezasentrada, instance.codigo_madera_ant))
             actualizarMadera()
             cache.delete('form_data')
         else:
@@ -484,6 +505,7 @@ def previsualizacionSec(request):
             piezas_entrada = float(request.POST.get('piezasentrada'))
             piezas_salida = float(request.POST.get('piezassalida'))
             codigo_madera = request.POST.get('codigo_madera')
+            codigo_madera_ant = request.POST.get('codigo_madera_ant')
             id_madera = None
             id_maquina = None
             for i in Maderas.objects.raw("""SELECT "id_madera", "codigo_madera" FROM "Maderas" WHERE "id_centroTrabajo" = 3"""):
@@ -499,7 +521,7 @@ def previsualizacionSec(request):
             form_data['id_maquina'] = id_maquina    
             form_data['id_area'] = 1
             form_data['id_centrotrabajo'] = 3
-            volumenEntrada = calcularVolumen(codigo_madera,piezas_entrada)
+            volumenEntrada = calcularVolumen(codigo_madera_ant,piezas_entrada)
             volumenSalida = calcularVolumen(codigo_madera,piezas_salida)
             form_data['volumenentrada'] = volumenEntrada
             form_data['volumensalida'] = volumenSalida
@@ -561,8 +583,6 @@ def secadoInfo(request):
                 if (i.codigo_madera == instance.codigo_madera):
                     instance.id_madera = i.id_madera
                 
-                if (instance.piezasentrada != None):
-                    instance.volumenentrada = ((i.espesor * i.ancho * i.largo) * instance.piezasentrada) / 1000000
 
                 if(instance.piezassalida != None):    
                     instance.volumensalida = ((i.espesor * i.ancho * i.largo) * instance.piezassalida) / 1000000
@@ -581,6 +601,8 @@ def secadoInfo(request):
                     if (i.nombremaquina == instance.nombre_maquina):
                         instance.nombre_centrotrabajo = i.centrotrabajomaquina
                         instance.id_maquina = i.id_maquina
+
+            instance.volumenentrada = calcularVolumen(instance.codigo_madera_ant,instance.piezasentrada)
 
             if instance.piezasentrada > cantidad_disponible:
                 messages.error(request, 'La cantidad de piezas ingresada es superior a la disponible')
@@ -682,6 +704,7 @@ def previsualizacionCep(request):
             piezas_rechazoproc = float(request.POST.get('piezasrechazoproc'))
 
             codigo_madera = request.POST.get('codigo_madera')
+            codigo_madera_ant = request.POST.get('codigo_madera_ant')
             id_madera = None
             id_maquina = None
             for i in Maderas.objects.raw("""SELECT "id_madera", "codigo_madera" FROM "Maderas" WHERE "id_centroTrabajo" = 4"""):
@@ -698,7 +721,7 @@ def previsualizacionCep(request):
             form_data['id_centrotrabajo'] = 4
 
             
-            volumenEntrada = calcularVolumen(codigo_madera,piezas_entrada)
+            volumenEntrada = calcularVolumen(codigo_madera_ant,piezas_entrada)
             volumenSalida = calcularVolumen(codigo_madera,piezas_salida)
             volumenRechazoHum = calcularVolumen(codigo_madera,piezas_rechazohum)
             volumenRechazoDef = calcularVolumen(codigo_madera,piezas_rechazodef)
@@ -775,7 +798,7 @@ def cepilladoInfo(request):
                     instance.id_madera = i.id_madera
                 
                 if (instance.piezasentrada != None):
-                    instance.volumenentrada = calcularVolumen(instance.codigo_madera,instance.piezasentrada)
+                    instance.volumenentrada = calcularVolumen(instance.codigo_madera_ant,instance.piezasentrada)
 
                 if(instance.piezassalida != None):    
                     instance.volumensalida = calcularVolumen(instance.codigo_madera,instance.piezassalida)
@@ -898,6 +921,7 @@ def previsualizacionTRZ(request):
             piezas_cat_c = request.POST.get('piezas_trz_c')
             piezas_cat_d = request.POST.get('piezas_trz_d')
             codigo_madera = request.POST.get('codigo_madera')
+            codigo_madera_ant = request.POST.get('codigo_madera_ant')
             id_madera = None
             id_maquina = None
             for i in Maderas.objects.raw("""SELECT "id_madera", "codigo_madera" FROM "Maderas" WHERE "id_centroTrabajo" = 5"""):
@@ -913,7 +937,7 @@ def previsualizacionTRZ(request):
             form_data['id_maquina'] = id_maquina    
             form_data['id_area'] = 1
             form_data['id_centrotrabajo'] = 5 
-            volumenEntrada = calcularVolumen(codigo_madera,piezas_entrada)
+            volumenEntrada = calcularVolumen(codigo_madera_ant,piezas_entrada)
             volumenSalida = calcularVolumen(codigo_madera,sumaCategorias)
             form_data['volumenentrada'] = volumenEntrada
             form_data['volumensalida'] = volumenSalida
@@ -999,7 +1023,7 @@ def trozadoInfo(request):
                     instance.id_madera = i.id_madera
 
                 if(instance.piezasentrada != None):    
-                    instance.volumenentrada = ((i.espesor * i.ancho * i.largo) * instance.piezasentrada) / 1000000
+                    instance.volumenentrada = calcularVolumen(instance.codigo_madera_ant,instance.piezasentrada)
 
             instance.volumensalida = calcularVolumen(instance.codigo_madera, sumaCategorias)
             instance.volumentotal = instance.volumensalida
@@ -1129,6 +1153,7 @@ def previsualizacionFNG(request):
             piezas_calidad = float(request.POST.get('piezascalidad'))
             piezas_reproceso = float(request.POST.get('piezasreproceso'))
             codigo_madera = request.POST.get('codigo_madera')
+            codigo_madera_ant = request.POST.get('codigo_madera_ant')
             id_madera = None
             id_maquina = None
             for i in Maderas.objects.raw("""SELECT "id_madera", "codigo_madera" FROM "Maderas" WHERE "id_centroTrabajo" = 6"""):
@@ -1144,7 +1169,7 @@ def previsualizacionFNG(request):
             form_data['id_maquina'] = id_maquina    
             form_data['id_area'] = 1
             form_data['id_centrotrabajo'] = 6
-            volumenEntrada = calcularVolumen(codigo_madera,piezas_entrada)
+            volumenEntrada = calcularVolumen(codigo_madera_ant,piezas_entrada)
             volumenCalidad = calcularVolumen(codigo_madera,piezas_calidad)
             volumenReproceso = calcularVolumen(codigo_madera, piezas_reproceso)
             form_data['volumenentrada'] = volumenEntrada
@@ -1213,11 +1238,11 @@ def fingerInfo(request):
                 if (i.codigo_madera == instance.codigo_madera):
                     instance.id_madera = i.id_madera
                 if(instance.piezasentrada != None):
-                    instance.volumenentrada = ((i.espesor * i.ancho * i.largo) * instance.piezasentrada) / 1000000
+                    instance.volumenentrada = calcularVolumen(instance.codigo_madera_ant,instance.piezasentrada)
                 if(instance.piezascalidad != None):
-                    instance.volumencalidad = ((i.espesor * i.ancho * i.largo) * instance.piezascalidad) / 1000000
+                    instance.volumencalidad = calcularVolumen(instance.codigo_madera,instance.piezascalidad)
                 if(instance.piezasreproceso != None):
-                    instance.volumenreproceso = ((i.espesor * i.ancho * i.largo) * instance.piezasreproceso) / 1000000
+                    instance.volumenreproceso =  calcularVolumen(instance.codigo_madera,instance.piezasreproceso)
 
                 instance.volumentotal = instance.volumencalidad + instance.volumenreproceso
 
@@ -1331,6 +1356,7 @@ def previsualizacionMOL(request):
             piezas_calidad = float(request.POST.get('piezascalidad'))
             piezas_rechazo = float(request.POST.get('piezasrechazoproc'))
             codigo_madera = request.POST.get('codigo_madera')
+            codigo_madera_ant = request.POST.get('codigo_madera_ant')
             id_madera = None
             id_maquina = None
 
@@ -1348,7 +1374,7 @@ def previsualizacionMOL(request):
             form_data['id_maquina'] = id_maquina
             form_data['id_area'] = 1
             form_data['id_centrotrabajo'] = 5
-            volumenEntrada = calcularVolumen(codigo_madera, piezas_entrada)
+            volumenEntrada = calcularVolumen(codigo_madera_ant, piezas_entrada)
             volumenCalidad = calcularVolumen(codigo_madera, piezas_calidad)
             volumenRechazo = calcularVolumen(codigo_madera, piezas_rechazo)
             form_data['volumenentrada'] = volumenEntrada
@@ -1416,7 +1442,7 @@ def moldureraInfo(request):
                     instance.id_madera = i.id_madera
 
                 if (instance.piezasentrada != None):    
-                    instance.volumenentrada = ((i.espesor * i.ancho * i.largo) * instance.piezasentrada) / 1000000
+                    instance.volumenentrada = calcularVolumen(instance.codigo_madera_ant,instance.piezasentrada)
                     
                 if(instance.piezascalidad != None):    
                     instance.volumencalidad = ((i.espesor * i.ancho * i.largo) * instance.piezascalidad) / 1000000
@@ -1611,7 +1637,6 @@ def reprocesoInfo(request):
                 connection.cursor().execute("""
                 UPDATE "Maderas" SET "piezas" = "piezas" + %s WHERE "codigo_madera" = %s
                 """,(instance.piezassalida, instance.codigo_madera))
-                instance.save()
             elif instance.categoria_trz == 'C': 
                 instance.piezas_trz_c = instance.piezassalida
                 if instance.piezassalida > cantidad_disponibleTRZC:
@@ -1623,7 +1648,6 @@ def reprocesoInfo(request):
                 connection.cursor().execute("""
                 UPDATE "Maderas" SET "piezas" = "piezas" + %s WHERE "codigo_madera" = %s
                 """,(instance.piezassalida, instance.codigo_madera))
-                instance.save() 
             
             elif instance.categoria_trz == 'A':
                 if instance.piezassalida > cantidad_disponible:
@@ -1638,12 +1662,10 @@ def reprocesoInfo(request):
                 """,(instance.piezassalida, instance.codigo_madera))
                     
                 
-                connection.cursor().execute("""
-                UPDATE "Maderas" SET "reproceso" = "reproceso" - %s WHERE "codigo_madera" = %s
-                """,(instance.piezassalida, instance.codigo_madera_ant))
-                instance.save()
-                actualizarMadera()
-                cache.delete('form_data')
+                
+            instance.save()
+            actualizarMadera()
+            cache.delete('form_data')
         else:
             messages.success(request,('Error al ingresar'))
             return render(request,'reprocesoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas,'nuevo_form':nuevo_form}) 
