@@ -15,8 +15,9 @@
 
     .container {
         margin: auto;
-        width: 500px;
-        max-width: 90%;
+        width: 100%;
+        max-width: 500px;
+        padding: 0 10px;
     }
 
     .container form {
@@ -35,6 +36,7 @@
 
     .container .form-row {
         display: flex;
+        flex-wrap: wrap;
         justify-content: space-between;
         margin-bottom: 18px;
     }
@@ -102,25 +104,48 @@
     .outside-btns .btn {
         margin: 0 10px;
     }
-    .ayuda{
-        margin-top: 150px;
-        margin-bottom: 280px;
-        margin-right: 50px;
-        width: 35%;
-        max-width: 70%;
+
+    .ayuda {
+        margin-top: 30px;
+        margin-bottom: 30px;
+        width: 100%;
+        max-width: 500px;
         background: white;
         border-radius: 4px;
-        box-shadow: 0 8px 16px rgba(0,0,0,.3);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, .3);
+        padding: 20px;
     }
-    .ayuda h3{
+
+    .ayuda h3 {
         text-align: center;
     }
-    .ayuda p{
+
+    .ayuda p {
         padding: 10px;
     }
-    
-    
+
+    /* Media queries para dispositivos móviles */
+    @media (max-width: 768px) {
+        .container {
+            padding: 0 20px;
+        }
+
+        .container .form-group {
+            flex-basis: 100%;
+        }
+
+        .container .btn {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .outside-btns .btn {
+            flex-basis: 100%;
+            margin: 10px 0;
+        }
+    }
 </style>
+
 <body>
     
 

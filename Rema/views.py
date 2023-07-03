@@ -77,7 +77,7 @@ def nuevoCodigo(request):
         diametro = request.POST.get('diametro')
         cantidadxpaquete = request.POST.get('cantidadxpaquete')
         if espesor == '' or ancho == '' or largo == '' or diametro == '' or cantidadxpaquete == '':
-            messages.error(request,'Asegurese de llenar todos los campos de texto')
+            messages.error(request,'Asegurese de llenar todos los campos')
             return render(request,'nuevoCodigoForm.html', {'inf_madera': info_maderas, 'inf_ct':info_ct})
         
         if float(espesor) < 0 or float(ancho) < 0 or float(largo) < 0 or float(diametro) < 0 or float(cantidadxpaquete) < 0:
