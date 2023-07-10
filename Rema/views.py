@@ -217,8 +217,8 @@ def previsualizacionEASE(request):
     
 
 def entradaAserraderoInfo(request):
-    info_maquinas = Maquina.objects.all
-    info_maderas = Maderas.objects.all
+    info_maquinas = Maquina.objects.all().order_by('nombremaquina').values()
+    info_maderas = Maderas.objects.all().order_by('diametro').values()
     p = Proceso.objects.aggregate(Max('id_proceso')).get('id_proceso__max')
     if request.method == "POST":
         update_data = request.POST.copy()
@@ -255,8 +255,7 @@ def entradaAserraderoInfo(request):
                     instance.id_madera = i.id_madera
 
                 if(instance.piezassalida != None):    
-                    instance.volumensalida = (i.diametro * i.diametro * i.largo * instance.piezassalida) / 10000
-
+                    instance.volumensalida = calcularVolumenEASE(instance.codigo_madera,instance.piezassalida)
                 instance.volumentotal = instance.volumensalida
 
                 instance.id_area = 1
@@ -296,8 +295,8 @@ class AserraderoFormView(FormView):
             return redirect('previsualizacion')
         return super().form_valid(form)
 def previsualizacion(request):
-    info_maquinas = Maquina.objects.all
-    info_maderas = Maderas.objects.all
+    info_maquinas = Maquina.objects.all().order_by('nombremaquina').values()
+    info_maderas = Maderas.objects.all().order_by('espesor').values()
     if request.method == 'POST':
         form = aserraderoForm(request.POST)
         update_data = request.POST.copy()
@@ -366,8 +365,8 @@ def previsualizacion(request):
 
 
 def aserraderoInfo(request):
-    info_maquinas = Maquina.objects.all
-    info_maderas = Maderas.objects.all
+    info_maquinas = Maquina.objects.all().order_by('nombremaquina').values()
+    info_maderas = Maderas.objects.all().order_by('espesor').values()
     p = Proceso.objects.aggregate(Max('id_proceso')).get('id_proceso__max')
     if request.method == "POST":
         update_data = request.POST.copy()
@@ -398,7 +397,7 @@ def aserraderoInfo(request):
             instance = nuevo_form.save(commit=False)
             instance.id_proceso = p+1
 
-            madera_anterior = Maderas.objects.get(codigo_madera = instance.codigo_madera_ant)
+            madera_anterior = Maderas.objects.get(codigo_madera = instance.codigo_madera_ant).order_by('codigo_madera').values()
             cantidad_disponible = madera_anterior.piezas
             for i in Maderas.objects.raw(
                 """
@@ -467,8 +466,8 @@ class SecadoFormView(FormView):
             return redirect('previsualizacionSec')
         return super().form_valid(form)
 def previsualizacionSec(request):
-    info_maquinas = Maquina.objects.all
-    info_maderas = Maderas.objects.all
+    info_maquinas = Maquina.objects.all().order_by('nombremaquina').values()
+    info_maderas = Maderas.objects.all().order_by('espesor').values()
     if request.method == 'POST':
         form = secadoForm(request.POST)
         update_data = request.POST.copy()
@@ -535,8 +534,8 @@ def previsualizacionSec(request):
     return render(request,'secadoForm.html',{'form':form,'maquinas':info_maquinas,'maderas':info_maderas})    
 
 def secadoInfo(request):
-    info_maquinas = Maquina.objects.all
-    info_maderas = Maderas.objects.all
+    info_maquinas = Maquina.objects.all().order_by('nombremaquina').values()
+    info_maderas = Maderas.objects.all().order_by('espesor').values()
     p = Proceso.objects.aggregate(Max('id_proceso')).get('id_proceso__max')
     if request.method == "POST":
         update_data = request.POST.copy()
@@ -571,7 +570,7 @@ def secadoInfo(request):
             instance = nuevo_form.save(commit=False)
             instance.id_proceso = p+1
 
-            madera_anterior = Maderas.objects.get(codigo_madera = instance.codigo_madera_ant)
+            madera_anterior = Maderas.objects.get(codigo_madera = instance.codigo_madera_ant).order_by('codigo_madera').values()
             cantidad_disponible = madera_anterior.piezas
             cantidad_disponibleCEP = madera_anterior.reproceso
             for i in Maderas.objects.raw(
@@ -657,8 +656,8 @@ class CepilladoFormView(FormView):
         return super().form_valid(form)
     
 def previsualizacionCep(request):
-    info_maquinas = Maquina.objects.all
-    info_maderas = Maderas.objects.all
+    info_maquinas = Maquina.objects.all().order_by('nombremaquina').values()
+    info_maderas = Maderas.objects.all().order_by('espesor').values()
     if request.method == 'POST':
         form = cepilladoForm(request.POST)
         update_data = request.POST.copy()
@@ -740,8 +739,8 @@ def previsualizacionCep(request):
     return render(request,'cepilladoForm.html',{'form':form,'inf_maquinas':info_maquinas,'inf_maderas':info_maderas})
 
 def cepilladoInfo(request):
-    info_maquinas = Maquina.objects.all
-    info_maderas = Maderas.objects.all
+    info_maquinas = Maquina.objects.all().order_by('nombremaquina').values()
+    info_maderas = Maderas.objects.all().order_by('espesor').values()
     p = Proceso.objects.aggregate(Max('id_proceso')).get('id_proceso__max')
     if request.method == "POST":
         update_data = request.POST.copy()
@@ -786,7 +785,7 @@ def cepilladoInfo(request):
             instance.id_proceso = p+1
            
 
-            madera_anterior = Maderas.objects.get(codigo_madera = instance.codigo_madera_ant)
+            madera_anterior = Maderas.objects.get(codigo_madera = instance.codigo_madera_ant).order_by('codigo_madera').values()
             cantidad_disponible = madera_anterior.piezas
             for i in Maderas.objects.raw(
                 """
@@ -868,8 +867,8 @@ class TrozadoFormView(FormView):
         return super().form_valid(form)
 
 def previsualizacionTRZ(request):
-    info_maquinas = Maquina.objects.all
-    info_maderas = Maderas.objects.all
+    info_maquinas = Maquina.objects.all().order_by('nombremaquina').values()
+    info_maderas = Maderas.objects.all().order_by('espesor').values()
     if request.method == 'POST':
         form = trozadoForm(request.POST)
         update_data = request.POST.copy()
@@ -964,8 +963,8 @@ def previsualizacionTRZ(request):
 
 
 def trozadoInfo(request):
-    info_maquinas = Maquina.objects.all
-    info_maderas = Maderas.objects.all
+    info_maquinas = Maquina.objects.all().order_by('nombremaquina').values()
+    info_maderas = Maderas.objects.all().order_by('espesor').values()
     p = Proceso.objects.aggregate(Max('id_proceso')).get('id_proceso__max')
     if request.method == "POST":
         update_data = request.POST.copy()
@@ -1011,7 +1010,7 @@ def trozadoInfo(request):
             instance.id_proceso = p+1
             instance.codigo_madera_ant = update_data['codigo_madera_ant']
 
-            madera_anterior = Maderas.objects.get(codigo_madera = instance.codigo_madera_ant)
+            madera_anterior = Maderas.objects.get(codigo_madera = instance.codigo_madera_ant).order_by('codigo_madera').values()
             cantidad_disponible = madera_anterior.piezas
             for i in Maderas.objects.raw(
                 """
@@ -1113,8 +1112,8 @@ class FingerFormView(FormView):
         return super().form_valid(form)
     
 def previsualizacionFNG(request):
-    info_maquinas = Maquina.objects.all
-    info_maderas = Maderas.objects.all
+    info_maquinas = Maquina.objects.all().order_by('nombremaquina').values()
+    info_maderas = Maderas.objects.all().order_by('codigo_madera').values()
     if request.method == 'POST':
         form = fingerForm(request.POST)
         update_data = request.POST.copy()
@@ -1186,8 +1185,8 @@ def previsualizacionFNG(request):
     return render(request,'fingerForm.html',{'form': form, 'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})              
 
 def fingerInfo(request):
-    info_maquinas = Maquina.objects.all
-    info_maderas = Maderas.objects.all
+    info_maquinas = Maquina.objects.all().order_by('nombremaquina').values()
+    info_maderas = Maderas.objects.all().order_by('codigo_madera').values()
     p = Proceso.objects.aggregate(Max('id_proceso')).get('id_proceso__max')
     if request.method == "POST":
         form = fingerForm(request.POST or None)
@@ -1226,7 +1225,7 @@ def fingerInfo(request):
             instance = nuevo_form.save(commit=False)
             instance.id_proceso = p+1
 
-            madera_anterior = Maderas.objects.get(codigo_madera = instance.codigo_madera_ant)
+            madera_anterior = Maderas.objects.get(codigo_madera = instance.codigo_madera_ant).order_by('codigo_madera').values()
             cantidad_disponible = madera_anterior.piezas
             cantidad_trz_disp = madera_anterior.piezas_trza
             for i in Maderas.objects.raw(
@@ -1311,8 +1310,8 @@ class MoldureraFormView(FormView):
         return super().form_valid(form)
 
 def previsualizacionMOL(request):
-    info_maquinas = Maquina.objects.all()
-    info_maderas = Maderas.objects.all()
+    info_maquinas = Maquina.objects.all().order_by('nombremaquina').values()
+    info_maderas = Maderas.objects.all().order_by('codigo_madera').values()
 
     if request.method == 'POST':
         form = moldureraForm(request.POST)
@@ -1391,8 +1390,8 @@ def previsualizacionMOL(request):
 
     return render(request, 'moldureraForm.html', {'form': form, 'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
 def moldureraInfo(request):
-    info_maquinas = Maquina.objects.all
-    info_maderas = Maderas.objects.all
+    info_maquinas = Maquina.objects.all().order_by('nombremaquina').values()
+    info_maderas = Maderas.objects.all().order_by('codigo_madera').values()
     p = Proceso.objects.aggregate(Max('id_proceso')).get('id_proceso__max')
     if request.method == "POST":
         
@@ -1430,7 +1429,7 @@ def moldureraInfo(request):
             instance = nuevo_form.save(commit=False)
             instance.id_proceso = p+1
 
-            madera_anterior = Maderas.objects.get(codigo_madera = instance.codigo_madera_ant)
+            madera_anterior = Maderas.objects.get(codigo_madera = instance.codigo_madera_ant).order_by('codigo_madera').values()
             cantidad_disponible = madera_anterior.piezas
             for i in Maderas.objects.raw(
                 """
@@ -1506,8 +1505,8 @@ class ReprocesoFormView(FormView):
         return super().form_valid(form)
 
 def previsualizacionRPR(request):
-    info_maquinas = Maquina.objects.all
-    info_maderas = Maderas.objects.all
+    info_maquinas = Maquina.objects.all().order_by('nombremaquina').values()
+    info_maderas = Maderas.objects.all().order_by('codigo_madera').values()
     if request.method == 'POST':
         form = reprocesoForm(request.POST)
         update_data = request.POST.copy()
@@ -1566,8 +1565,8 @@ def previsualizacionRPR(request):
 
 
 def reprocesoInfo(request):
-    info_maquinas = Maquina.objects.all
-    info_maderas = Maderas.objects.all
+    info_maquinas = Maquina.objects.all().order_by('nombremaquina').values()
+    info_maderas = Maderas.objects.all().order_by('codigo_madera').values()
     p = Proceso.objects.aggregate(Max('id_proceso')).get('id_proceso__max')
     if request.method == "POST":
         update_data = request.POST.copy()
