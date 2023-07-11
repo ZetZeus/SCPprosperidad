@@ -12,8 +12,8 @@ class entradaAserraderoForm(forms.ModelForm):
                   'fecha',
                   'nombre_maquina',
                   'codigo_madera',
-                  'piezassalida',
-                  'volumensalida',
+                  'piezasease',
+                  'volumenease',
                   'volumentotal']
 
 class aserraderoForm(forms.ModelForm):
@@ -28,7 +28,7 @@ class aserraderoForm(forms.ModelForm):
                   'nombre_maquina',
                   'codigo_madera',
                   'codigo_madera_ant',
-                  'piezassalida',
+                  'volumenentrada',
                   'volumensalida',
                   'volumentotal']
 class secadoForm(forms.ModelForm):
@@ -43,8 +43,6 @@ class secadoForm(forms.ModelForm):
                   'nombre_maquina',
                   'codigo_madera',
                   'codigo_madera_ant',
-                  'piezasentrada',
-                  'piezassalida',
                   'volumenentrada',
                   'volumensalida',
                   'volumentotal']
@@ -61,13 +59,8 @@ class cepilladoForm(forms.ModelForm):
                   'nombre_maquina',
                   'codigo_madera',
                   'codigo_madera_ant',
-                  'piezasentrada',
-                  'piezassalida',
                   'volumenentrada',
                   'volumensalida',
-                  'piezasrechazohum',
-                  'piezasrechazodef',
-                  'piezasrechazoproc',
                   'volumenrechazohum',
                   'volumenrechazodef',
                   'volumenrechazoproc',
@@ -85,8 +78,7 @@ class trozadoForm(forms.ModelForm):
                   'nombre_maquina',
                   'codigo_madera',
                   'codigo_madera_ant',
-                  'piezasentrada',
-                  'piezassalida',
+
                   'volumenentrada',
                   'volumensalida',
                   'volumentotal']
@@ -102,11 +94,8 @@ class fingerForm(forms.ModelForm):
                   'nombre_maquina',
                   'codigo_madera',
                   'codigo_madera_ant',
-                  'piezasentrada',
-                  'piezascalidad',
                   'volumenentrada',
                   'volumencalidad',
-                  'piezasreproceso',
                   'volumenreproceso',
                   'volumentotal']
 
@@ -122,11 +111,8 @@ class moldureraForm(forms.ModelForm):
                   'nombre_maquina',
                   'codigo_madera',
                   'codigo_madera_ant',
-                  'piezasentrada',
-                  'piezascalidad',
                   'volumenentrada',
                   'volumencalidad',
-                  'piezasrechazoproc',
                   'volumenrechazoproc',
                   'volumentotal']
 class reprocesoForm(forms.ModelForm):
@@ -141,7 +127,6 @@ class reprocesoForm(forms.ModelForm):
                   'nombre_maquina',
                   'codigo_madera',
                   'codigo_madera_ant',
-                  'piezassalida',
                   'volumensalida',
                   'volumentotal']        
 

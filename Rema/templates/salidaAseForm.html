@@ -134,18 +134,7 @@
                         {% endfor %}
                     </select>
                 </div>
-                <div>
-                    <label for="codigo_madera_ant">Codigo Madera Anterior</label>
-                    <select id="codigo_madera_ant" name="codigo_madera_ant" class="form-control">
-                        {% for item in maderas %}
-                            {% if item.id_centrotrabajo == 1 %}
-                                {% if item.piezas > 0 %}
-                                    <option value="{{ item.codigo_madera }}">{{ item.codigo_madera }}</option>
-                                {% endif %}
-                            {% endif %}
-                        {% endfor %}
-                    </select>
-                </div>
+                
                 <div>
                     <label for="codigo_madera">Codigo Madera</label>
                     <select id="codigo_madera" name="codigo_madera" class="form-control">
@@ -157,13 +146,13 @@
                     </select>
                 </div>
                 <div>
-                    <label for="piezasentrada">Piezas Entrada</label>
-                    <input id="piezasentrada" type="number" name="piezasentrada" class="form-control" >
+                    <label for="volumenentrada">Volumen Entrada</label>
+                    <input id="volumenentrada" type="number" name="volumenentrada" step="any" class="form-control" >
                    
                 </div>
                 <div>
-                    <label for="piezassalida">Piezas Salida</label>
-                    <input id="piezassalida" type="number" name="piezassalida" class="form-control" >
+                    <label for="volumensalida">Volumen Salida</label>
+                    <input id="volumensalida" type="number" name="volumensalida" step="any" class="form-control" >
                    
                 </div>
             </div>
