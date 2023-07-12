@@ -14,7 +14,31 @@ from django.core.cache import cache
 from .models import Centrotrabajo,Area, Maquina, Maderas, Proceso
 from .forms import entradaAserraderoForm,aserraderoForm,secadoForm,cepilladoForm,trozadoForm,fingerForm,moldureraForm,reprocesoForm, nuevaMadera
 
+'''
+    DEFINICIÓN DE VISTAS PARA LA WEB
 
+    -home: Hace un SELECT a la base de datos con los centros de trabajo del área
+    
+    -error404: genera una página de error con su respectivo template para cuando hay error de
+    página no disponible o no existente
+
+    -actualizarMadera: (NO UTILIZADA) Funcion para actualizar cierto campos de la base de datos con calculos
+    como los volumenes
+
+    -nuevoCodigo: Vista para la página de creación de nuevos códigos de madera
+    
+    -calcularVolumenEASE: Método para calcular el volumen en la entrada de aserradero
+
+    -calcularVolumen: Similar al anterior pero al ser una fórmula distinta para el resto de CT se utiliza éste método
+
+    -previsualizaciones: Todos las vistas que empiecen con el nombre previsualizacion o previsual hacen referencia a las ventanas
+    respectivas de previsualización de información
+
+    -Ingreso de información: Los métodos que su nombre termina en info, tal como aserraderoInfo, cepilladoInfo, etc.
+    son los métodos de manejo de información a través de formularios, a través de solicitudes POST y GET para comunicar
+    con la base de datos y obtener o registrar información.
+
+'''
 
 def home(request):
     info_area = Centrotrabajo.objects.all
