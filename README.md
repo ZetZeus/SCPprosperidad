@@ -32,12 +32,13 @@ Esto con el fin de que durante el desarrollo se pueda visualizar información de
 
 Este apartado del proyecto requiere un conocimiento básico de Django para comprender algunos conceptos claves de este framework
 
-Dentro del proyecto principal llamado *scpApp* existe una App (reciclable) llamada *Rema* que la puedes identificar en las carpetas,dentro de la cual encontrarás diversos archivos 
-- *urls.py* que es para identificar la navegación entre páginas
-- *forms.py* para la información relacionada a los formularios de cada centro de trabajo
-- *views.py* será el archivo mas importante ya que dentro de el se encuentran todas las funciones principales, como el ingreso de información a la base de datos, previsualización y cálculo
-- Una subcarpeta llamada *templates* que incluye archivos HTML para mostrar visualmente en el navegador la información de cada formulario o previsualizacion creada
-- *models.py* Este archivo contiene la creación de modelos que representan las columnas y tablas de la base de datos creada, ¿Recuerdas que te mencioné que no era necesario tener las tablas en la base de datos creadas sino solo la base de datos?, Bien porque al tener esta información en el archivo *models.py* cuando se utilice *migrate* desde la linea de comandos, Django replicará lo que esta presente en el archivo models y creará las tablas que no esten creadas (en este caso todas, si ya creaste algunas Django solo creará las restantes por ejemplo las propias que requiere el framework para trabajar)
+Dentro del proyecto principal llamado *scpApp* existe una App (reciclable) llamada *Rema* que la puedes identificar en las carpetas,dentro de la cual encontrarás diversos archivos:
+
+1. *urls.py* que es para identificar la navegación entre páginas
+2. *forms.py* para la información relacionada a los formularios de cada centro de trabajo
+3. *views.py* será el archivo mas importante ya que dentro de el se encuentran todas las funciones principales, como el ingreso de información a la base de datos, previsualización y cálculo
+4. Una subcarpeta llamada *templates* que incluye archivos HTML para mostrar visualmente en el navegador la información de cada formulario o previsualizacion creada
+5. *models.py* Este archivo contiene la creación de modelos que representan las columnas y tablas de la base de datos creada, ¿Recuerdas que te mencioné que no era necesario tener las tablas en la base de datos creadas sino solo la base de datos?, Bien porque al tener esta información en el archivo *models.py* cuando se utilice *migrate* desde la linea de comandos, Django replicará lo que esta presente en el archivo models y creará las tablas que no esten creadas (en este caso todas, si ya creaste algunas Django solo creará las restantes por ejemplo las propias que requiere el framework para trabajar)
 
 ---
 ### Si necesitas crear una nueva área...
