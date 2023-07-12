@@ -832,6 +832,8 @@ def previsualizacionTRZ(request):
                             'id_centrotrabajo':'0',
                             'id_area':'0',
                             'id_maquina': '0',
+                            'volumenentrada':'0',
+                            'volumensalida':'0',
                             'volumentotal':'0',
                             })
         nuevo_formVis = trozadoForm(update_data)
@@ -841,6 +843,7 @@ def previsualizacionTRZ(request):
         volumen_cat_c = request.POST.get('volumen_trz_c')
         volumen_cat_d = request.POST.get('volumen_trz_d')
         sumaCategorias = float(volumen_cat_a)+float(volumen_cat_b)+float(volumen_cat_c)+float(volumen_cat_d)
+        
         if volumen_entrada == '' or volumen_cat_a == '' or volumen_cat_b=='' or volumen_cat_c == '' or volumen_cat_d=='':
             messages.error(request, 'No se puede previsualizar si no se agregan todos los volumenes')
             return render(request,'trozadoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
@@ -853,7 +856,6 @@ def previsualizacionTRZ(request):
         if request.POST.get('fecha') == '':    
             messages.error(request, 'Ingrese fecha correctamente')
             return render(request,'trozadoForm.html',{'inf_maquinas': info_maquinas, 'inf_maderas': info_maderas})
-            
         if nuevo_formVis.is_valid():
             form_data = nuevo_formVis.cleaned_data
             volumen_entrada = float(request.POST.get('volumenentrada'))
@@ -889,7 +891,6 @@ def previsualizacionTRZ(request):
             
 
 
-            print(form_data)
             cache.delete('form_data')
             return render(request,'previsualTRZ.html',{'form_data':form_data,'form':nuevo_formVis})
     else:
