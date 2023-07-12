@@ -9,24 +9,24 @@ El siguiente sistema tiene como función principal registrar la información de 
 
 - Django 4.2.1
 - Python 3.9
-- PostgreSQL 14
+- PostgreSQL 15
 ## Instalación
 
 Para un correcto uso del sistema sigue los siguientes pasos:
 
-- Asegurate de tener instalado PostgreSQL 14 y Python 3.9 en tu sistema operativo
+- Asegurate de tener instalado PostgreSQL 15 y Python 3.9 en tu sistema operativo
 - Crear la base de datos en PostgreSQL a través de pgAdmin u otro administrador de BD (no es necesaria la creación de tablas, ya que con *migrate* en Django las crea además de generar tablas propias de este framework)
 - Crear entorno virtual para la instalación y ejecución del programa
 - Clonar el repositorio desde la parte superior de la página
 - Instalar dependencias (install_requirements.bat)
 - Revisar si archivos relacionados a PostgreSQL se encuentran correctamente instalados, tales como psycopg psycopg2
-- Modificar conexión a base de datos en archivo *settings.py* 
+- Modificar conexión a base de datos creada en archivo *settings.py* 
 Durante el desarrollo del sistema eliminar contenido dentro de ALLOWED_HOSTS y dejar DEBUG en True:
 ```
 DEBUG = True
 ALLOWED_HOSTS = []
 ```
-Esto con el fin de que durante el desarrollo se pueda visualizar información detallada sobre los errores, durante producción o en el servidor en vivo, recuerda cambiar DEBUG por False, asi si tienes problemas se generará una página de error 500 o error 404 (que tiene su template) si es que la página no existe
+Esto con el fin de que durante el desarrollo se pueda visualizar información detallada sobre los errores, durante producción o en el servidor en vivo, recuerda cambiar DEBUG por False, asi si tienes problemas se generará una página de error 500 o error 404 (que tiene su propio template) si es que la página no existe
 - En cualquier parte durante la instalación si tienes dudas puedes consultar la [documentación de Django](https://docs.djangoproject.com/en/4.2/)
 ## Principales características
 
