@@ -32,7 +32,7 @@ Esto con el fin de que durante el desarrollo se pueda visualizar información de
 
 Este apartado del proyecto requiere un conocimiento básico de Django para comprender algunos conceptos claves de este framework
 
-Dentro del proyecto principal llamado *scpApp* existe una App (reciclable) llamada *Rema* que la puedes identificar en los archivos encontrarás diversos archivos 
+Dentro del proyecto principal llamado *scpApp* existe una App (reciclable) llamada *Rema* que la puedes identificar en las carpetas,dentro de la cual encontrarás diversos archivos 
 - *urls.py* que es para identificar la navegación entre páginas
 - *forms.py* para la información relacionada a los formularios de cada centro de trabajo
 - *views.py* será el archivo mas importante ya que dentro de el se encuentran todas las funciones principales, como el ingreso de información a la base de datos, previsualización y cálculo
